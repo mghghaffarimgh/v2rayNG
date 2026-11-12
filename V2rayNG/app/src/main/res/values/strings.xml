@@ -576,4 +576,7 @@
     <string name="sub_info_traffic" translatable="false">%1$s / %2$s</string>
     <string name="sub_info_unlimited">Unlimited</string>
 
+    <string name="title_pref_kill_switch">Kill switch</string>
+    <string name="summary_pref_kill_switch">Keep blocking traffic when the tunnel drops, until you stop the VPN</string>
+    <string name="notification_kill_switch_blocking">Traffic blocked, reconnecting</string>
 </resources>

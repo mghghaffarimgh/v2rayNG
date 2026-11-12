@@ -573,4 +573,7 @@
     <string name="sub_info_open_page">打开订阅信息页面</string>
     <string name="sub_info_unlimited">无限制</string>
 
+    <string name="title_pref_kill_switch">断网保护</string>
+    <string name="summary_pref_kill_switch">隧道中断时继续拦截流量，直到你停止 VPN</string>
+    <string name="notification_kill_switch_blocking">流量已拦截，正在重新连接</string>
 </resources>

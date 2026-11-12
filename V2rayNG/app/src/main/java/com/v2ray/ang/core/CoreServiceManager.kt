@@ -57,6 +57,9 @@ object CoreServiceManager {
     @Volatile
     private var isReloading = false
 
+    @Volatile
+    private var isReceiverRegistered = false
+
     /** Tun descriptor the core was started with, null in the proxy only and root run modes. */
     private var currentVpnInterface: ParcelFileDescriptor? = null
 
@@ -76,6 +79,17 @@ object CoreServiceManager {
      * @return True if the service is running, false otherwise.
      */
     fun isRunning() = coreController.isRunning
+
+    /**
+     * Checks if the core is serving traffic, or is about to serve it again.
+     *
+     * A reload after a network handover stops and starts the core in place, so [isRunning] is
+     * false for a moment although the tunnel is healthy. Kill switch recovery must not treat that
+     * window as a failure.
+     *
+     * @return True if the core is running or reloading.
+     */
+    fun isCoreHealthy() = isRunning() || isReloading
 
     /**
      * Gets the name of the currently running server.
@@ -114,15 +128,30 @@ object CoreServiceManager {
 
     @Throws(Exception::class)
     private fun doStartCoreLoop(service: Service, vpnInterface: ParcelFileDescriptor?) {
+        registerMessageReceiver(service)
+
+        currentVpnInterface = vpnInterface
+        launchCore(service, vpnInterface)
+        startNetworkMonitor(service)
+    }
+
+    /**
+     * Registers the service message receiver once per running service.
+     *
+     * A failed start leaves the receiver registered, and the kill switch retries the start on the
+     * same service instance, so registering twice would deliver every command twice.
+     *
+     * @param service The service that owns the receiver.
+     */
+    private fun registerMessageReceiver(service: Service) {
+        if (isReceiverRegistered) return
+
         val mFilter = IntentFilter(AppConfig.BROADCAST_ACTION_SERVICE)
         mFilter.addAction(Intent.ACTION_SCREEN_ON)
         mFilter.addAction(Intent.ACTION_SCREEN_OFF)
         mFilter.addAction(Intent.ACTION_USER_PRESENT)
         ContextCompat.registerReceiver(service, mMsgReceive, mFilter, Utils.receiverFlags())
-
-        currentVpnInterface = vpnInterface
-        launchCore(service, vpnInterface)
-        startNetworkMonitor(service)
+        isReceiverRegistered = true
     }
 
     @Throws(Exception::class)
@@ -218,9 +247,13 @@ object CoreServiceManager {
         NotificationManager.cancelNotification()
 
         try {
-            service.unregisterReceiver(mMsgReceive)
+            if (isReceiverRegistered) {
+                service.unregisterReceiver(mMsgReceive)
+            }
         } catch (e: Exception) {
             LogUtil.e(AppConfig.TAG, "StartCore-Manager: Failed to unregister receiver", e)
+        } finally {
+            isReceiverRegistered = false
         }
 
         return true

@@ -24,6 +24,14 @@ import com.v2ray.ang.handler.SettingsManager
 import com.v2ray.ang.root.RootLanSharing
 import com.v2ray.ang.util.LogUtil
 import com.v2ray.ang.util.Utils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import java.lang.ref.SoftReference
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -33,6 +41,16 @@ class CoreVpnService : VpnService(), ServiceControl {
     private var isRunning = false
     private var tun2SocksService: Tun2SocksControl? = null
     private val isStartingLock = AtomicBoolean(false)
+
+    /** Scope owning every coroutine this service starts; cancelled on teardown and destroy. */
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private var killSwitchJob: Job? = null
+
+    @Volatile
+    private var isTearingDown = false
+
+    @Volatile
+    private var isKillSwitchBlocking = false
 
     override fun onCreate() {
         super.onCreate()
@@ -72,10 +90,14 @@ class CoreVpnService : VpnService(), ServiceControl {
 
         unlockStart()
         NotificationManager.cancelNotification()
+        serviceScope.cancel()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         NotificationManager.ensureForeground()
+        // Android reuses this instance for a restart, so a teardown flag left by the previous run
+        // would keep the kill switch disarmed for the whole new run.
+        isTearingDown = false
         // Always-on VPN restarts from OS deliver intent.action == SERVICE_INTERFACE or null intent.
         // Reset any stuck start lock left by a killed process to allow setupVpnService() to run.
         val isSystemVpnStart = intent == null || intent.action == SERVICE_INTERFACE
@@ -108,12 +130,18 @@ class CoreVpnService : VpnService(), ServiceControl {
         }
         if (!CoreServiceManager.startCoreLoop(mInterface)) {
             LogUtil.e(AppConfig.TAG, "StartCore-VPN: Failed to start core loop")
-            stopAllService()
+            if (!enterKillSwitchBlocking("core start failed")) {
+                stopAllService()
+            }
             return
         }
 
+        exitKillSwitchBlocking()
+
         // Start LAN sharing if enabled in settings
         RootLanSharing.startClientSharing(this)
+
+        startKillSwitchWatchdog()
     }
 
     override fun stopService() {
@@ -317,11 +345,112 @@ class CoreVpnService : VpnService(), ServiceControl {
         tun2SocksService?.startTun2Socks()
     }
 
+    /**
+     * Keeps the tunnel open with no core behind it, so packets the system routes into the VPN
+     * interface are dropped instead of leaving over the physical network.
+     *
+     * @param reason Why the core is gone, for the log.
+     * @return True if the kill switch took the tunnel over, false if the caller must tear it down.
+     */
+    private fun enterKillSwitchBlocking(reason: String): Boolean {
+        val keepTunnel = KillSwitchPolicy.shouldKeepTunnel(
+            reason = KillSwitchPolicy.TeardownReason.CORE_FAILURE,
+            killSwitchEnabled = SettingsManager.isKillSwitchEnabled(),
+        )
+        // With no established interface there is nothing holding the traffic back, so blocking
+        // would only keep a dead service alive.
+        if (!keepTunnel || isTearingDown || !::mInterface.isInitialized) return false
+
+        if (!isKillSwitchBlocking) {
+            isKillSwitchBlocking = true
+            LogUtil.w(AppConfig.TAG, "StartCore-VPN: Kill switch blocking traffic, $reason")
+            NotificationManager.showKillSwitchBlocking()
+        }
+        // The failed attempt owns the start lock; release it so the watchdog and a manual start
+        // command can both retry on this same service instance.
+        unlockStart()
+        startKillSwitchWatchdog()
+        return true
+    }
+
+    /**
+     * Releases the blocked state once the core serves traffic again.
+     */
+    private fun exitKillSwitchBlocking() {
+        if (!isKillSwitchBlocking) return
+
+        isKillSwitchBlocking = false
+        LogUtil.i(AppConfig.TAG, "StartCore-VPN: Kill switch released, core is serving traffic")
+    }
+
+    /**
+     * Samples core health while the tunnel is up and restarts the core behind a blocked tunnel.
+     *
+     * The native core has no death callback, so health is polled. A reload after a network
+     * handover is not a failure, which is why [CoreServiceManager.isCoreHealthy] is used instead
+     * of the running flag.
+     */
+    private fun startKillSwitchWatchdog() {
+        if (!SettingsManager.isKillSwitchEnabled()) return
+        if (killSwitchJob?.isActive == true) return
+
+        killSwitchJob = serviceScope.launch {
+            var attempt = 0
+            while (isActive) {
+                delay(KillSwitchPolicy.HEALTH_CHECK_INTERVAL_MS)
+                if (isTearingDown || !isRunning) break
+
+                // Turning the setting off while traffic is blocked must give the device its
+                // network back instead of leaving a tunnel nothing serves.
+                if (isKillSwitchBlocking && !SettingsManager.isKillSwitchEnabled()) {
+                    LogUtil.w(AppConfig.TAG, "StartCore-VPN: Kill switch turned off while blocking, stopping service")
+                    stopAllService()
+                    break
+                }
+
+                val canRecover = KillSwitchPolicy.shouldRecover(
+                    coreHealthy = CoreServiceManager.isCoreHealthy(),
+                    isTearingDown = isTearingDown,
+                    killSwitchEnabled = SettingsManager.isKillSwitchEnabled(),
+                )
+                if (!canRecover) {
+                    attempt = 0
+                    continue
+                }
+                if (!enterKillSwitchBlocking("core stopped unexpectedly")) break
+
+                attempt += 1
+                delay(KillSwitchPolicy.retryDelayMillis(attempt))
+                if (isTearingDown || !isRunning) break
+                if (CoreServiceManager.isCoreHealthy()) continue
+
+                // A manual start command may be setting the tunnel up right now; that attempt
+                // owns the lock and this one is skipped instead of racing it.
+                if (!tryLockStart()) continue
+
+                LogUtil.i(AppConfig.TAG, "StartCore-VPN: Kill switch recovery attempt $attempt")
+                try {
+                    if (CoreServiceManager.startCoreLoop(mInterface)) {
+                        exitKillSwitchBlocking()
+                        attempt = 0
+                    }
+                } finally {
+                    unlockStart()
+                }
+            }
+        }
+    }
+
     private fun stopAllService(isForced: Boolean = true) {
 //        val configName = defaultDPreference.getPrefString(PREF_CURR_CONFIG_GUID, "")
 //        val emptyInfo = VpnNetworkInfo()
 //        val info = loadVpnNetworkInfo(configName, emptyInfo)!! + (lastNetworkInfo ?: emptyInfo)
 //        saveVpnNetworkInfo(configName, info)
+        isTearingDown = true
+        killSwitchJob?.cancel()
+        killSwitchJob = null
+        isKillSwitchBlocking = false
+
         unlockStart()
         isRunning = false
 

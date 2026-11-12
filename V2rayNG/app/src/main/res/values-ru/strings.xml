@@ -579,4 +579,7 @@
     <string name="sub_info_open_page">Открыть страницу подписки</string>
     <string name="sub_info_unlimited">Без ограничений</string>
 
+    <string name="title_pref_kill_switch">Аварийное отключение</string>
+    <string name="summary_pref_kill_switch">Блокировать трафик при обрыве туннеля, пока вы не остановите VPN</string>
+    <string name="notification_kill_switch_blocking">Трафик заблокирован, переподключение</string>
 </resources>

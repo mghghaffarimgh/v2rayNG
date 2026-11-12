@@ -573,4 +573,7 @@
     <string name="sub_info_open_page">Mở trang thông tin đăng ký</string>
     <string name="sub_info_unlimited">Không giới hạn</string>
 
+    <string name="title_pref_kill_switch">Ngắt mạng khẩn cấp</string>
+    <string name="summary_pref_kill_switch">Tiếp tục chặn lưu lượng khi đường hầm bị ngắt, cho đến khi bạn dừng VPN</string>
+    <string name="notification_kill_switch_blocking">Đã chặn lưu lượng, đang kết nối lại</string>
 </resources>

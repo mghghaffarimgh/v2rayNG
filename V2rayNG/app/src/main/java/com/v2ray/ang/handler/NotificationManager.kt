@@ -127,6 +127,21 @@ object NotificationManager {
     }
 
     /**
+     * Switches the ongoing notification to the kill switch blocked state.
+     *
+     * The tunnel is still up while the core is gone, so the speed loop has nothing to report and
+     * is stopped until the core serves traffic again.
+     */
+    fun showKillSwitchBlocking() {
+        val service = getService() ?: return
+        if (mBuilder == null) showNotification(null)
+
+        speedNotificationJob?.cancel()
+        speedNotificationJob = null
+        updateNotification(service.getString(R.string.notification_kill_switch_blocking), 0, 0)
+    }
+
+    /**
      * Cancels the notification.
      */
     fun cancelNotification() {

@@ -415,6 +415,14 @@ object SettingsManager {
     }
 
     /**
+     * Check if the VPN kill switch is enabled.
+     * @return True if traffic must stay blocked after the tunnel drops, false otherwise.
+     */
+    fun isKillSwitchEnabled(): Boolean {
+        return MmkvManager.decodeSettingsBool(AppConfig.PREF_KILL_SWITCH, false)
+    }
+
+    /**
      * Check if VPN mode is enabled.
      * @return True if VPN mode is enabled, false otherwise.
      */
