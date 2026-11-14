@@ -7,6 +7,7 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.provider.Settings
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
@@ -139,6 +140,76 @@ object NotificationManager {
         speedNotificationJob?.cancel()
         speedNotificationJob = null
         updateNotification(service.getString(R.string.notification_kill_switch_blocking), 0, 0)
+    }
+
+    /**
+     * Says that the in-app kill switch is on but the system is not enforcing anything.
+     *
+     * Without "Block connections without VPN", another VPN app can claim the VPN slot and carry
+     * the traffic itself. Saying nothing would leave the user believing in a protection that is
+     * only half there.
+     */
+    fun showKillSwitchNeedsLockdown() {
+        val service = getService() ?: return
+        val context = service.applicationContext ?: return
+        val intent = Intent(Settings.ACTION_VPN_SETTINGS).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        val pending = PendingIntent.getActivity(
+            context, 2, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        postOneOff(
+            context,
+            id = 2,
+            title = context.getString(R.string.notification_kill_switch_needs_lockdown_title),
+            text = context.getString(R.string.notification_kill_switch_needs_lockdown),
+            pending = pending,
+        )
+    }
+
+    /**
+     * Says that another VPN app took the VPN slot while the kill switch was on.
+     */
+    fun showKillSwitchTakenOver() {
+        val service = getService() ?: return
+        val context = service.applicationContext ?: return
+        postOneOff(
+            context,
+            id = 3,
+            title = context.getString(R.string.notification_kill_switch_taken_over_title),
+            text = context.getString(R.string.notification_kill_switch_taken_over),
+            pending = null,
+        )
+    }
+
+    private fun postOneOff(
+        context: Context,
+        id: Int,
+        title: String,
+        text: String,
+        pending: PendingIntent?,
+    ) {
+        try {
+            val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? android.app.NotificationManager ?: return
+            // The same channel the ongoing notification uses, created the same way.
+            val channelId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                createNotificationChannel()
+            } else {
+                ""
+            }
+            val builder = NotificationCompat.Builder(context, channelId)
+                .setSmallIcon(R.drawable.ic_stat_name)
+                .setContentTitle(title)
+                .setContentText(text)
+                .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+                .setAutoCancel(true)
+            if (pending != null) {
+                builder.setContentIntent(pending)
+            }
+            manager.notify(id, builder.build())
+        } catch (e: Exception) {
+            LogUtil.w(AppConfig.TAG, "could not post the kill switch notice", e)
+        }
     }
 
     /**

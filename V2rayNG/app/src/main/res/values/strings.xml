@@ -579,4 +579,8 @@
     <string name="title_pref_kill_switch">Kill switch</string>
     <string name="summary_pref_kill_switch">Keep blocking traffic when the tunnel drops, until you stop the VPN</string>
     <string name="notification_kill_switch_blocking">Traffic blocked, reconnecting</string>
+    <string name="notification_kill_switch_needs_lockdown_title">Kill switch is only half on</string>
+    <string name="notification_kill_switch_needs_lockdown">The in-app kill switch is on, but the system is not blocking traffic outside the VPN. Another VPN app can still take over. Tap to set this app as Always-on VPN and turn on \"Block connections without VPN\".</string>
+    <string name="notification_kill_switch_taken_over_title">Another VPN took over</string>
+    <string name="notification_kill_switch_taken_over">The VPN slot was given to another app while the kill switch was on, so traffic is no longer going through this tunnel.</string>
 </resources>

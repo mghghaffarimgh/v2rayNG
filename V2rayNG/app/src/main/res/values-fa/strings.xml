@@ -578,4 +578,8 @@
     <string name="title_pref_kill_switch">کیل‌سوئیچ</string>
     <string name="summary_pref_kill_switch">وقتی تونل می‌افتد، ترافیک مسدود بماند تا خودتان VPN را خاموش کنید</string>
     <string name="notification_kill_switch_blocking">ترافیک مسدود است، در حال اتصال دوباره</string>
+    <string name="notification_kill_switch_needs_lockdown_title">کیل‌سوئیچ فقط نیمه‌روشن است</string>
+    <string name="notification_kill_switch_needs_lockdown">کیل‌سوئیچ درون برنامه روشن است، ولی سیستم ترافیک بیرون از VPN را نمی‌بندد. یک برنامهٔ VPN دیگر هنوز می‌تواند جای آن را بگیرد. بزنید تا این برنامه را Always-on VPN کنید و «Block connections without VPN» را روشن کنید.</string>
+    <string name="notification_kill_switch_taken_over_title">یک VPN دیگر جا را گرفت</string>
+    <string name="notification_kill_switch_taken_over">جایگاه VPN در حالی که کیل‌سوئیچ روشن بود به برنامهٔ دیگری داده شد، پس ترافیک دیگر از این تونل نمی‌گذرد.</string>
 </resources>

@@ -62,7 +62,37 @@ class CoreVpnService : VpnService(), ServiceControl {
 
     override fun onRevoke() {
         LogUtil.w(AppConfig.TAG, "StartCore-VPN: Permission revoked")
+        // Android hands the VPN slot to one app at a time, so this is also what happens when
+        // another VPN app takes over. With the kill switch on, that is a bypass worth saying out
+        // loud: our tunnel is gone and somebody else is carrying the traffic.
+        if (SettingsManager.isKillSwitchEnabled()) {
+            LogUtil.w(AppConfig.TAG, "StartCore-VPN: kill switch was on; the VPN slot was taken")
+            NotificationManager.showKillSwitchTakenOver()
+        }
         stopAllService()
+    }
+
+    /**
+     * Whether the system itself is blocking traffic that leaves the tunnel.
+     *
+     * This is the only real kill switch on Android. Ours keeps the tunnel up and refuses to let
+     * the core's failure open a path, but it cannot stop another VPN app from claiming the VPN
+     * slot — the system gives it away and revokes ours. "Always-on VPN" with "Block connections
+     * without VPN" is what stops that, and only the user can turn it on, in system settings.
+     */
+    private fun warnIfSystemLockdownIsOff() {
+        if (!SettingsManager.isKillSwitchEnabled()) return
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
+        try {
+            if (isAlwaysOn && isLockdownEnabled) return
+            LogUtil.w(
+                AppConfig.TAG,
+                "StartCore-VPN: kill switch on, system lockdown off (alwaysOn=$isAlwaysOn, lockdown=$isLockdownEnabled)"
+            )
+            NotificationManager.showKillSwitchNeedsLockdown()
+        } catch (e: Exception) {
+            LogUtil.w(AppConfig.TAG, "StartCore-VPN: could not read the always-on state", e)
+        }
     }
 
 //    override fun onLowMemory() {
@@ -116,6 +146,7 @@ class CoreVpnService : VpnService(), ServiceControl {
             return START_NOT_STICKY
         }
         startService()
+        warnIfSystemLockdownIsOff()
         return START_STICKY
     }
 
