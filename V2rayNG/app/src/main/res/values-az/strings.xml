@@ -575,5 +575,43 @@
     <string name="sub_info_open_page">Abunəlik səhifəsini aç</string>
     <string name="sub_info_traffic" translatable="false">%1$s / %2$s</string>
     <string name="sub_info_unlimited">Limitsiz</string>
-
+    <string name="title_pref_kill_switch">Kill switch</string>
+    <string name="summary_pref_kill_switch">Tunel düşəndə trafiki VPN-i özünüz dayandırana qədər bloklayın</string>
+    <string name="notification_kill_switch_blocking">Trafik bloklanıb, yenidən qoşulur</string>
+    <string name="notification_kill_switch_taken_over_title">Başqa VPN bağlantını götürdü</string>
+    <string name="notification_kill_switch_taken_over">Kill switch açıq ikən VPN yeri başqa tətbiqə verildi, ona görə trafik artıq bu tuneldən keçmir.</string>
+    <string name="title_leak_guide">Sızma qorunması bələdçisi</string>
+    <string name="summary_leak_guide">Trafikin VPN-dən kənar çıxa biləcəyi bütün yollar və onların bağlanması</string>
+    <string name="title_pref_leak_warnings">Sızma xəbərdarlıqları</string>
+    <string name="summary_pref_leak_warnings">VPN açıq sızma yolu ilə başlayanda bildiriş göstər</string>
+    <string name="action_leak_guide">Sızma bələdçisi</string>
+    <string name="notification_channel_leak_alerts">Sızma xəbərdarlıqları</string>
+    <string name="notification_leak_risks_title">Trafik hələ də VPN-dən kənar çıxa bilər</string>
+    <string name="notification_kill_switch_setup_failed_title">Kill switch tuneli saxlaya bilmədi</string>
+    <string name="notification_kill_switch_setup_failed">VPN interfeysi qurula bilmədi, ona görə trafiki heç nə bloklamır və o adi şəbəkənizlə gedir. VPN-i yenidən başladın və ya sistem tənzimləmələrində \"Block connections without VPN\" seçimini açın.</string>
+    <string name="leak_risk_kill_switch_off">Kill switch bağlıdır: nüvə dayansa, trafik birbaşa çıxır</string>
+    <string name="leak_risk_system_lockdown_off">\"Block connections without VPN\" bağlıdır: yenidən başlatma, çökmə və ya başqa VPN-dən sonra trafik birbaşa çıxır</string>
+    <string name="leak_risk_per_app_bypass">Tətbiq üzrə yan keçmə: seçilmiş tətbiqlər heç vaxt VPN istifadə etmir</string>
+    <string name="leak_risk_per_app_allow_list">Tətbiq üzrə proksi: seçilməyən tətbiqlər heç vaxt VPN istifadə etmir</string>
+    <string name="leak_risk_bypass_lan">LAN yan keçmə: yerli şəbəkə ünvanları VPN-dən kənar açılır</string>
+    <string name="leak_guide_status_title">Hazırkı quraşdırmanız</string>
+    <string name="leak_guide_no_risks">Hazırkı tənzimləmələrlə məlum sızma yolu yoxdur.</string>
+    <string name="leak_guide_lockdown_unknown">Sistem kilidinin vəziyyəti VPN başlayanda oxunur. Yoxlamaq üçün VPN-i bir dəfə başladın; Android 9 və köhnə versiyalar bunu bildirmir.</string>
+    <string name="leak_guide_open_per_app">Tətbiq üzrə proksi tənzimləmələri</string>
+    <string name="leak_guide_kill_switch_title">Kill switch nə edir</string>
+    <string name="leak_guide_kill_switch_body">VPN nüvəsi çökəndə və ya özü dayananda kill switch tuneli arxasında heç nə olmadan açıq saxlayır; trafik adi şəbəkəyə çıxmaq əvəzinə atılır və tətbiq yenidən qoşulmağa çalışır. Yalnız tətbiq VPN rejimində işləyərkən işləyir.</string>
+    <string name="leak_guide_lockdown_title">Yeganə tam qorunma: Always-on VPN</string>
+    <string name="leak_guide_lockdown_body">Android özü VPN-dən keçməyən hər bağlantını bloklaya bilər: yükləmə zamanı, tətbiq məcburi dayandırılandan sonra və başqa VPN tətbiqi yeri götürmək istəyəndə belə. Sistem VPN tənzimləmələrini açın, v2rayNG yanındakı dişliyə toxunun və həm \"Always-on VPN\", həm də \"Block connections without VPN\" seçimini açın.</string>
+    <string name="leak_guide_reboot_title">Yenidən başlatma və işə salma</string>
+    <string name="leak_guide_reboot_body">Telefon işə düşəndən sonra bu tətbiq tuneli açana qədər tunel yoxdur və bu müddətdə tətbiqlər birbaşa qoşula bilər. Sistem kilidi olmadan VPN qoşulana qədər mobil data və Wi-Fi-ı bağlı saxlayın; \"Cihaz yükləndikdən sonra qoşul\" boşluğu qısaldır, amma bağlamır.</string>
+    <string name="leak_guide_other_vpn_title">Başqa VPN tətbiqi</string>
+    <string name="leak_guide_other_vpn_body">Android eyni anda yalnız bir VPN-ə icazə verir. Başqa VPN qoşulanda Android bunu ayırır və heç bir tətbiq buna mane ola bilməz; bu baş verəndə bildiriş alacaqsınız. Sistem kilidi başqa VPN tətbiqlərinin yeri götürməsinin qarşısını alır.</string>
+    <string name="leak_guide_per_app_title">Tətbiq üzrə proksi, LAN yan keçmə və birbaşa qaydalar</string>
+    <string name="leak_guide_per_app_body">Tətbiq üzrə proksi ilə xaric edilən tətbiqlər və LAN yan keçmə açıq olanda yerli şəbəkə ünvanları həmişə adi şəbəkənizi istifadə edir. Saytları \"direct\" göndərən marşrut qaydaları həmin saytlara real IP-nizi göstərir. Yalnız etibar etdiyinizi xaric edin.</string>
+    <string name="leak_guide_hotspot_title">Hotspot və USB modem</string>
+    <string name="leak_guide_hotspot_body">Android-də telefonun sistem hotspotuna və ya USB modeminə qoşulan cihazlar VPN-dən keçmir, real bağlantınızı istifadə edir. Onların trafikini tuneldən keçirmək üçün bu tətbiqin VPN paylaşımından və ya root edilmiş telefonda LAN paylaşımından istifadə edin.</string>
+    <string name="leak_guide_modes_title">Yalnız proksi və root rejimləri</string>
+    <string name="leak_guide_modes_body">Kill switch yalnız VPN rejimində var. Yalnız proksi rejimində proksini nəzərə almayan tətbiqlər birbaşa çıxır; root rejimində qorunma marşrut qaydalarından asılıdır. Sızma qorunması üçün VPN rejimindən istifadə edin.</string>
+    <string name="leak_guide_location_title">IP ünvanı məkan deyil</string>
+    <string name="leak_guide_location_body">VPN IP ünvanınızı gizlədir, məkanınızı yox. GPS, yaxınlıqdakı Wi-Fi şəbəkələri və mobil qüllələr, SIM kart, saat qurşağı və dil harada olduğunuzu göstərə bilər. Etibar etmədiyiniz tətbiqlərə məkan icazəsi verməyin.</string>
 </resources>

@@ -18,6 +18,8 @@ import com.v2ray.ang.dto.entities.ProfileItem
 import com.v2ray.ang.extension.delay
 import com.v2ray.ang.extension.toSpeedString
 import com.v2ray.ang.helper.NotificationHelper
+import com.v2ray.ang.service.LeakRiskPolicy
+import com.v2ray.ang.ui.leakguide.LeakGuideActivity
 import com.v2ray.ang.ui.main.MainActivity
 import com.v2ray.ang.util.LogUtil
 import kotlinx.coroutines.CoroutineScope
@@ -32,6 +34,13 @@ object NotificationManager {
     private const val NOTIFICATION_PENDING_INTENT_CONTENT = 0
     private const val NOTIFICATION_PENDING_INTENT_STOP_V2RAY = 1
     private const val NOTIFICATION_PENDING_INTENT_RESTART_V2RAY = 2
+    private const val NOTIFICATION_PENDING_INTENT_VPN_SETTINGS = 3
+    private const val NOTIFICATION_PENDING_INTENT_LEAK_GUIDE = 4
+
+    // One-off leak notices; ids 12 and 13 belong to NotificationChannelType.
+    private const val NOTIFICATION_ID_LEAK_RISKS = 2
+    private const val NOTIFICATION_ID_TAKEN_OVER = 3
+    private const val NOTIFICATION_ID_SETUP_FAILED = 4
     private const val NOTIFICATION_ICON_THRESHOLD = 3000
     private const val QUERY_INTERVAL_MS = 3000L
 
@@ -143,27 +152,29 @@ object NotificationManager {
     }
 
     /**
-     * Says that the in-app kill switch is on but the system is not enforcing anything.
+     * Lists the leak paths open for the current settings, one line each.
      *
-     * Without "Block connections without VPN", another VPN app can claim the VPN slot and carry
-     * the traffic itself. Saying nothing would leave the user believing in a protection that is
-     * only half there.
+     * Tapping opens the leak guide, which explains every path and how to close it. When the
+     * system lockdown is off, a second action opens the Android VPN settings directly, since that
+     * is the one fix only the user can make.
+     *
+     * @param risks The open paths, most severe first; nothing is posted when empty.
      */
-    fun showKillSwitchNeedsLockdown() {
-        val service = getService() ?: return
-        val context = service.applicationContext ?: return
-        val intent = Intent(Settings.ACTION_VPN_SETTINGS).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    fun showLeakRisks(risks: List<LeakRiskPolicy.Risk>) {
+        if (risks.isEmpty()) return
+        val context = getService()?.applicationContext ?: return
+        val text = risks.joinToString("\n") { "• " + context.getString(riskTextRes(it)) }
+        val vpnSettings = if (LeakRiskPolicy.Risk.SYSTEM_LOCKDOWN_OFF in risks) {
+            vpnSettingsPendingIntent(context)
+        } else {
+            null
         }
-        val pending = PendingIntent.getActivity(
-            context, 2, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-        postOneOff(
+        postLeakNotice(
             context,
-            id = 2,
-            title = context.getString(R.string.notification_kill_switch_needs_lockdown_title),
-            text = context.getString(R.string.notification_kill_switch_needs_lockdown),
-            pending = pending,
+            id = NOTIFICATION_ID_LEAK_RISKS,
+            title = context.getString(R.string.notification_leak_risks_title),
+            text = text,
+            vpnSettings = vpnSettings,
         )
     }
 
@@ -171,44 +182,100 @@ object NotificationManager {
      * Says that another VPN app took the VPN slot while the kill switch was on.
      */
     fun showKillSwitchTakenOver() {
-        val service = getService() ?: return
-        val context = service.applicationContext ?: return
-        postOneOff(
+        val context = getService()?.applicationContext ?: return
+        postLeakNotice(
             context,
-            id = 3,
+            id = NOTIFICATION_ID_TAKEN_OVER,
             title = context.getString(R.string.notification_kill_switch_taken_over_title),
             text = context.getString(R.string.notification_kill_switch_taken_over),
-            pending = null,
+            vpnSettings = vpnSettingsPendingIntent(context),
         )
     }
 
-    private fun postOneOff(
+    /**
+     * Says that the tunnel could not be set up while the kill switch was on, so nothing holds
+     * traffic back.
+     */
+    fun showKillSwitchSetupFailed() {
+        val context = getService()?.applicationContext ?: return
+        postLeakNotice(
+            context,
+            id = NOTIFICATION_ID_SETUP_FAILED,
+            title = context.getString(R.string.notification_kill_switch_setup_failed_title),
+            text = context.getString(R.string.notification_kill_switch_setup_failed),
+            vpnSettings = vpnSettingsPendingIntent(context),
+        )
+    }
+
+    /**
+     * Maps a leak path to its one-line description.
+     *
+     * @param risk The leak path.
+     * @return The string resource naming it.
+     */
+    fun riskTextRes(risk: LeakRiskPolicy.Risk): Int = when (risk) {
+        LeakRiskPolicy.Risk.KILL_SWITCH_OFF -> R.string.leak_risk_kill_switch_off
+        LeakRiskPolicy.Risk.SYSTEM_LOCKDOWN_OFF -> R.string.leak_risk_system_lockdown_off
+        LeakRiskPolicy.Risk.PER_APP_BYPASS -> R.string.leak_risk_per_app_bypass
+        LeakRiskPolicy.Risk.PER_APP_ALLOW_LIST -> R.string.leak_risk_per_app_allow_list
+        LeakRiskPolicy.Risk.BYPASS_LAN -> R.string.leak_risk_bypass_lan
+    }
+
+    private fun vpnSettingsPendingIntent(context: Context): PendingIntent {
+        val intent = Intent(Settings.ACTION_VPN_SETTINGS).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        return PendingIntent.getActivity(
+            context, NOTIFICATION_PENDING_INTENT_VPN_SETTINGS, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+    }
+
+    /**
+     * Posts a leak notice on the leak alert channel.
+     *
+     * The service channel is silent by design, which is right for the ongoing notification and
+     * wrong for a warning that traffic may be leaving outside the tunnel, so leak notices use a
+     * channel of their own that the user can tune separately.
+     */
+    private fun postLeakNotice(
         context: Context,
         id: Int,
         title: String,
         text: String,
-        pending: PendingIntent?,
+        vpnSettings: PendingIntent?,
     ) {
         try {
-            val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? android.app.NotificationManager ?: return
-            // The same channel the ongoing notification uses, created the same way.
-            val channelId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                createNotificationChannel()
-            } else {
-                ""
+            val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager ?: return
+            NotificationHelper.ensureNotificationChannel(
+                context = context,
+                channelId = AppConfig.LEAK_ALERT_CHANNEL_ID,
+                channelNameRes = R.string.notification_channel_leak_alerts,
+                importance = NotificationManager.IMPORTANCE_HIGH,
+            )
+            val guideIntent = Intent(context, LeakGuideActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
-            val builder = NotificationCompat.Builder(context, channelId)
+            val guide = PendingIntent.getActivity(
+                context, NOTIFICATION_PENDING_INTENT_LEAK_GUIDE, guideIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            val builder = NotificationCompat.Builder(context, AppConfig.LEAK_ALERT_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_stat_name)
                 .setContentTitle(title)
                 .setContentText(text)
                 .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setCategory(NotificationCompat.CATEGORY_ERROR)
                 .setAutoCancel(true)
-            if (pending != null) {
-                builder.setContentIntent(pending)
+                .setContentIntent(guide)
+                .addAction(0, context.getString(R.string.action_leak_guide), guide)
+            if (vpnSettings != null) {
+                builder.addAction(0, context.getString(R.string.title_system_vpn_settings), vpnSettings)
             }
             manager.notify(id, builder.build())
         } catch (e: Exception) {
-            LogUtil.w(AppConfig.TAG, "could not post the kill switch notice", e)
+            LogUtil.w(AppConfig.TAG, "Notification: could not post leak notice id=$id", e)
         }
     }
 

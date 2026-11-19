@@ -73,26 +73,43 @@ class CoreVpnService : VpnService(), ServiceControl {
     }
 
     /**
-     * Whether the system itself is blocking traffic that leaves the tunnel.
+     * Reads the system lockdown state, stores it, and tells the user about every leak path that
+     * applies to the current settings.
      *
-     * This is the only real kill switch on Android. Ours keeps the tunnel up and refuses to let
-     * the core's failure open a path, but it cannot stop another VPN app from claiming the VPN
-     * slot — the system gives it away and revokes ours. "Always-on VPN" with "Block connections
-     * without VPN" is what stops that, and only the user can turn it on, in system settings.
+     * The system lockdown ("Always-on VPN" with "Block connections without VPN") is the only
+     * protection that holds across a reboot, a killed process and another VPN app taking the VPN
+     * slot; only the user can turn it on. The in-app kill switch covers a core failure only, so
+     * every other path is named instead of left for the user to discover.
+     *
+     * Runs in [serviceScope]: it reads settings and the selected server, and asks the system over
+     * binder, none of which belongs on the main thread.
      */
-    private fun warnIfSystemLockdownIsOff() {
-        if (!SettingsManager.isKillSwitchEnabled()) return
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
-        try {
-            if (isAlwaysOn && isLockdownEnabled) return
-            LogUtil.w(
-                AppConfig.TAG,
-                "StartCore-VPN: kill switch on, system lockdown off (alwaysOn=$isAlwaysOn, lockdown=$isLockdownEnabled)"
-            )
-            NotificationManager.showKillSwitchNeedsLockdown()
-        } catch (e: Exception) {
-            LogUtil.w(AppConfig.TAG, "StartCore-VPN: could not read the always-on state", e)
+    private fun reportLeakRisks() {
+        serviceScope.launch {
+            try {
+                val state = readLockdownState()
+                SettingsManager.setLastLockdownState(state)
+
+                val risks = LeakRiskPolicy.risks(SettingsManager.getLeakRiskInputs())
+                if (!LeakRiskPolicy.shouldWarn(risks, SettingsManager.isLeakWarningEnabled())) return@launch
+                LogUtil.w(AppConfig.TAG, "StartCore-VPN: leak paths open, lockdown=$state risks=$risks")
+                NotificationManager.showLeakRisks(risks)
+            } catch (e: Exception) {
+                LogUtil.w(AppConfig.TAG, "StartCore-VPN: could not report leak paths", e)
+            }
         }
+    }
+
+    /**
+     * Asks the system whether it blocks traffic outside the VPN.
+     *
+     * @return The lockdown state; unknown below Android 10, which does not report it.
+     */
+    private fun readLockdownState(): LeakRiskPolicy.LockdownState {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            return LeakRiskPolicy.lockdownState(supported = false, alwaysOn = false, lockdown = false)
+        }
+        return LeakRiskPolicy.lockdownState(supported = true, alwaysOn = isAlwaysOn, lockdown = isLockdownEnabled)
     }
 
 //    override fun onLowMemory() {
@@ -141,12 +158,17 @@ class CoreVpnService : VpnService(), ServiceControl {
         LogUtil.i(AppConfig.TAG, "StartCore-VPN: Service command received, systemVpnStart=$isSystemVpnStart")
         if (!setupVpnService()) {
             unlockStart()
+            // With no interface there is nothing to hold traffic back, so the kill switch cannot
+            // keep its promise; say so instead of stopping silently.
+            if (SettingsManager.isKillSwitchEnabled()) {
+                NotificationManager.showKillSwitchSetupFailed()
+            }
             // Stop service if setup fails to avoid infinite restart loops (START_STICKY)
             stopSelf()
             return START_NOT_STICKY
         }
         startService()
-        warnIfSystemLockdownIsOff()
+        reportLeakRisks()
         return START_STICKY
     }
 
@@ -225,28 +247,37 @@ class CoreVpnService : VpnService(), ServiceControl {
         // Configure app-specific settings (session name and per-app proxy)
         configurePerAppProxy(builder)
 
-        // Close the old interface since the parameters have been changed
-        try {
-            if (::mInterface.isInitialized) {
-                mInterface.close()
-            }
-        } catch (e: Exception) {
-            LogUtil.w(AppConfig.TAG, "Failed to close old interface", e)
-        }
-
         // Configure platform-specific features
         configurePlatformFeatures(builder)
 
-        // Create a new interface using the builder and save the parameters
+        // Establish the new interface before closing the old one. Closing first leaves a moment
+        // with no VPN interface at all, and the system routes traffic over the physical network
+        // during it; establishing while the old one is open hands the routes over in one step.
+        val oldInterface = if (::mInterface.isInitialized) mInterface else null
         try {
             mInterface = builder.establish()!!
             isRunning = true
+            closeReplacedInterface(oldInterface)
             return true
         } catch (e: Exception) {
             LogUtil.e(AppConfig.TAG, "Failed to establish VPN interface", e)
             stopAllService()
         }
         return false
+    }
+
+    /**
+     * Closes the interface a new one replaced, once the new one carries the routes.
+     *
+     * @param oldInterface The replaced interface, or null when there was none.
+     */
+    private fun closeReplacedInterface(oldInterface: ParcelFileDescriptor?) {
+        if (oldInterface == null) return
+        try {
+            oldInterface.close()
+        } catch (e: Exception) {
+            LogUtil.w(AppConfig.TAG, "StartCore-VPN: Failed to close the replaced interface", e)
+        }
     }
 
     /**

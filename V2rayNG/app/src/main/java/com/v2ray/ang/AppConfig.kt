@@ -34,6 +34,8 @@ object AppConfig {
     const val PREF_VPN_INTERFACE_ADDRESS_CONFIG_INDEX = "pref_vpn_interface_address_config_index"
     const val PREF_VPN_MTU = "pref_vpn_mtu"
     const val PREF_KILL_SWITCH = "pref_kill_switch"
+    const val PREF_LEAK_WARNINGS = "pref_leak_warnings"
+    const val PREF_LAST_LOCKDOWN_STATE = "pref_last_lockdown_state"
     const val PREF_ROUTING_DOMAIN_STRATEGY = "pref_routing_domain_strategy"
     const val PREF_ROUTING_RULESET = "pref_routing_ruleset"
     const val PREF_MUX_ENABLED = "pref_mux_enabled"
@@ -207,6 +209,7 @@ object AppConfig {
     /** Notification channel IDs and names. */
     // Use a new ID because Android does not let an app raise an existing channel's importance.
     const val RAY_NG_CHANNEL_ID = "CORE_M_CH_ID_V2"
+    const val LEAK_ALERT_CHANNEL_ID = "leak_alert_channel"
 
     /** Protocols Scheme **/
     const val VMESS = "vmess://"

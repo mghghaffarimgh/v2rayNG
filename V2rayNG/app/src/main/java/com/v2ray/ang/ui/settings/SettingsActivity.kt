@@ -50,6 +50,7 @@ import com.v2ray.ang.ui.compose.SettingsListItem
 import com.v2ray.ang.ui.compose.SettingsMenuItem
 import com.v2ray.ang.ui.compose.SettingsSwitchItem
 import com.v2ray.ang.ui.compose.ThemeManager
+import com.v2ray.ang.ui.leakguide.LeakGuideActivity
 import com.v2ray.ang.ui.compose.verticalScrollbar
 import com.v2ray.ang.util.LogUtil
 import com.v2ray.ang.util.Utils
@@ -89,7 +90,8 @@ class SettingsActivity : BaseComponentActivity() {
             viewModel = viewModel,
             onBackClick = { finish() },
             onModeHelpClicked = { Utils.openUri(this, AppConfig.APP_WIKI_MODE) },
-            onSystemVpnSettingsClicked = ::openSystemVpnSettings
+            onSystemVpnSettingsClicked = ::openSystemVpnSettings,
+            onLeakGuideClicked = { startActivity(Intent(this, LeakGuideActivity::class.java)) }
         )
     }
 }
@@ -100,7 +102,8 @@ fun SettingsScreen(
     viewModel: SettingsViewModel,
     onBackClick: () -> Unit,
     onModeHelpClicked: () -> Unit,
-    onSystemVpnSettingsClicked: () -> Unit
+    onSystemVpnSettingsClicked: () -> Unit,
+    onLeakGuideClicked: () -> Unit
 ) {
     val scrollState = rememberScrollState()
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
@@ -355,6 +358,11 @@ fun SettingsScreen(
                     checked = killSwitch,
                     enabled = isVpn,
                     onCheckedChange = { killSwitch = it }
+                )
+                SettingsMenuItem(
+                    title = stringResource(R.string.title_leak_guide),
+                    subtitle = stringResource(R.string.summary_leak_guide),
+                    onClick = onLeakGuideClicked
                 )
                 SettingsListItem(
                     title = stringResource(R.string.title_pref_vpn_bypass_lan),

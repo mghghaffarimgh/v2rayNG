@@ -25,6 +25,7 @@ import com.v2ray.ang.handler.MmkvManager.decodeSubsList
 import com.v2ray.ang.handler.MmkvManager.decodeSubscription
 import com.v2ray.ang.handler.MmkvManager.encodeSubscription
 import com.v2ray.ang.handler.MmkvManager.removeSubscription
+import com.v2ray.ang.service.LeakRiskPolicy
 import com.v2ray.ang.util.JsonUtil
 import com.v2ray.ang.util.LogUtil
 import com.v2ray.ang.util.Utils
@@ -420,6 +421,64 @@ object SettingsManager {
      */
     fun isKillSwitchEnabled(): Boolean {
         return MmkvManager.decodeSettingsBool(AppConfig.PREF_KILL_SWITCH, false)
+    }
+
+    /**
+     * Check if the app warns about leak paths when the tunnel comes up.
+     * @return True if leak warnings are enabled, false otherwise.
+     */
+    fun isLeakWarningEnabled(): Boolean {
+        return MmkvManager.decodeSettingsBool(AppConfig.PREF_LEAK_WARNINGS, true)
+    }
+
+    /**
+     * Turns the leak warnings on or off.
+     * @param enabled The new value.
+     */
+    fun setLeakWarningEnabled(enabled: Boolean) {
+        MmkvManager.encodeSettings(AppConfig.PREF_LEAK_WARNINGS, enabled)
+    }
+
+    /**
+     * Reads what the VPN service last saw about the system always-on lockdown.
+     *
+     * Only a running [android.net.VpnService] can ask the system, so the service stores the
+     * answer and screens read it from here.
+     *
+     * @return The stored state, [LeakRiskPolicy.LockdownState.UNKNOWN] when never stored.
+     */
+    fun getLastLockdownState(): LeakRiskPolicy.LockdownState {
+        val stored = MmkvManager.decodeSettingsString(AppConfig.PREF_LAST_LOCKDOWN_STATE)
+        return LeakRiskPolicy.LockdownState.entries.firstOrNull { it.name == stored }
+            ?: LeakRiskPolicy.LockdownState.UNKNOWN
+    }
+
+    /**
+     * Stores what the VPN service saw about the system always-on lockdown.
+     * @param state The state to store.
+     */
+    fun setLastLockdownState(state: LeakRiskPolicy.LockdownState) {
+        MmkvManager.encodeSettings(AppConfig.PREF_LAST_LOCKDOWN_STATE, state.name)
+    }
+
+    /**
+     * Collects the settings that decide which leak paths apply.
+     *
+     * Reads the selected server for the LAN bypass decision, so call it off the main thread.
+     *
+     * @return The inputs for [LeakRiskPolicy.risks].
+     */
+    fun getLeakRiskInputs(): LeakRiskPolicy.Inputs {
+        val perAppApps = MmkvManager.decodeSettingsStringSet(AppConfig.PREF_PER_APP_PROXY_SET)
+        return LeakRiskPolicy.Inputs(
+            vpnMode = isVpnMode() && !isRootMode(),
+            killSwitchEnabled = isKillSwitchEnabled(),
+            lockdown = getLastLockdownState(),
+            perAppEnabled = MmkvManager.decodeSettingsBool(AppConfig.PREF_PER_APP_PROXY, false),
+            perAppHasApps = !perAppApps.isNullOrEmpty(),
+            perAppBypassMode = MmkvManager.decodeSettingsBool(AppConfig.PREF_BYPASS_APPS, false),
+            bypassLan = routingRulesetsBypassLan(),
+        )
     }
 
     /**
