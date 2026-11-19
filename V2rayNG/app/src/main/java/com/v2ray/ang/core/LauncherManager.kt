@@ -9,6 +9,7 @@ import com.v2ray.ang.R
 import com.v2ray.ang.extension.isComplexType
 import com.v2ray.ang.extension.toast
 import com.v2ray.ang.extension.toastError
+import com.v2ray.ang.handler.LeakCheckManager
 import com.v2ray.ang.handler.MmkvManager
 import com.v2ray.ang.handler.SettingsManager
 import com.v2ray.ang.helper.MessageHelper
@@ -53,6 +54,9 @@ object LauncherManager {
 
     fun stopService(context: Context) {
         //context.toast(R.string.toast_services_stop)
+        // A user stop is the only thing that clears the expectation; the daemon also clears it on
+        // the stop message, but this covers a daemon that already died.
+        LeakCheckManager.setVpnExpected(context, false)
         MessageHelper.sendMsg2Service(context, AppConfig.MSG_STATE_STOP, "")
     }
 

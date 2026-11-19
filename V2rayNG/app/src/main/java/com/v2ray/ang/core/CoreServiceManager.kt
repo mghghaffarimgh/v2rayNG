@@ -20,6 +20,7 @@ import com.v2ray.ang.dto.entities.ProfileItem
 import com.v2ray.ang.enums.BrowserDialerMode
 import com.v2ray.ang.extension.delay
 import com.v2ray.ang.extension.isNotNullEmpty
+import com.v2ray.ang.handler.LeakCheckManager
 import com.v2ray.ang.handler.MmkvManager
 import com.v2ray.ang.handler.NotificationManager
 import com.v2ray.ang.handler.SettingsManager
@@ -529,6 +530,9 @@ object CoreServiceManager {
 
                 AppConfig.MSG_STATE_STOP -> {
                     LogUtil.i(AppConfig.TAG, "StartCore-Manager: Stop service")
+                    // The notification's stop action reaches only this receiver, so the user stop
+                    // is recorded here too; the leak watcher reads it to tell a stop from a crash.
+                    LeakCheckManager.setVpnExpected(serviceControl.getService(), false)
                     serviceControl.stopService()
                 }
 

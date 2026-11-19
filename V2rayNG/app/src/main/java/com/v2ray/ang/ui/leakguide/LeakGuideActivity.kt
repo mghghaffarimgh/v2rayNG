@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
+import android.text.format.DateUtils
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -32,17 +34,21 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.R
 import com.v2ray.ang.extension.toastError
+import com.v2ray.ang.handler.LeakCheckManager
 import com.v2ray.ang.handler.NotificationManager
+import com.v2ray.ang.service.LeakCheckPolicy
 import com.v2ray.ang.service.LeakRiskPolicy
 import com.v2ray.ang.ui.base.BaseComponentActivity
 import com.v2ray.ang.ui.compose.AppTopBar
 import com.v2ray.ang.ui.compose.NavigationBarsSpacer
 import com.v2ray.ang.ui.compose.PreferenceGroupHeader
+import com.v2ray.ang.ui.compose.SettingsListItem
 import com.v2ray.ang.ui.compose.SettingsMenuItem
 import com.v2ray.ang.ui.compose.SettingsSwitchItem
 import com.v2ray.ang.ui.perappproxy.PerAppProxyActivity
 import com.v2ray.ang.util.LogUtil
 import kotlinx.coroutines.launch
+import java.io.File
 
 /**
  * Explains every known path for traffic to leave outside the VPN tunnel, shows which of them are
@@ -74,6 +80,22 @@ class LeakGuideActivity : BaseComponentActivity() {
         }
     }
 
+    private fun shareLog(file: File) {
+        try {
+            val uri = FileProvider.getUriForFile(this, "${packageName}.cache", file)
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_STREAM, uri)
+                putExtra(Intent.EXTRA_SUBJECT, file.name)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            startActivity(Intent.createChooser(intent, getString(R.string.leak_test_share_log)))
+        } catch (e: Exception) {
+            LogUtil.e(AppConfig.TAG, "LeakGuide: cannot share the leak log", e)
+            toastError(R.string.toast_failure)
+        }
+    }
+
     @Composable
     override fun ScreenContent() {
         val state by viewModel.state.collectAsStateWithLifecycle()
@@ -83,6 +105,10 @@ class LeakGuideActivity : BaseComponentActivity() {
             onSystemVpnSettingsClick = ::openSystemVpnSettings,
             onPerAppClick = { startActivity(Intent(this, PerAppProxyActivity::class.java)) },
             onLeakWarningsChange = viewModel::setLeakWarningsEnabled,
+            onRunCheck = viewModel::runCheckNow,
+            onIntervalChange = viewModel::setCheckInterval,
+            onShareLog = { viewModel.exportLog(::shareLog) },
+            onClearLog = viewModel::clearLog,
         )
     }
 }
@@ -108,6 +134,10 @@ fun LeakGuideScreen(
     onSystemVpnSettingsClick: () -> Unit,
     onPerAppClick: () -> Unit,
     onLeakWarningsChange: (Boolean) -> Unit,
+    onRunCheck: () -> Unit,
+    onIntervalChange: (Int) -> Unit,
+    onShareLog: () -> Unit,
+    onClearLog: () -> Unit,
 ) {
     Scaffold(
         contentWindowInsets = WindowInsets(0),
@@ -145,6 +175,39 @@ fun LeakGuideScreen(
                 onCheckedChange = onLeakWarningsChange,
             )
 
+            PreferenceGroupHeader(title = stringResource(R.string.leak_test_title))
+            LeakTestCard(state)
+            SettingsMenuItem(
+                title = stringResource(
+                    if (state.checkRunning) R.string.leak_test_running else R.string.leak_test_run_now
+                ),
+                subtitle = stringResource(R.string.leak_test_run_now_summary),
+                onClick = { if (!state.checkRunning) onRunCheck() },
+            )
+            val intervalLabels = LeakCheckManager.INTERVAL_CHOICES.map { minutes ->
+                if (minutes == 0) {
+                    stringResource(R.string.leak_test_interval_off)
+                } else {
+                    stringResource(R.string.leak_test_interval_minutes, minutes)
+                }
+            }
+            SettingsListItem(
+                title = stringResource(R.string.leak_test_interval),
+                entries = intervalLabels,
+                values = LeakCheckManager.INTERVAL_CHOICES.map { it.toString() },
+                selectedValue = state.checkIntervalMinutes.toString(),
+                onSelected = { value -> value.toIntOrNull()?.let(onIntervalChange) },
+            )
+            SettingsMenuItem(
+                title = stringResource(R.string.leak_test_share_log),
+                subtitle = stringResource(R.string.leak_test_share_log_summary),
+                onClick = onShareLog,
+            )
+            SettingsMenuItem(
+                title = stringResource(R.string.leak_test_clear_log),
+                onClick = onClearLog,
+            )
+
             guideSections.forEach { section ->
                 Text(
                     text = stringResource(section.title),
@@ -164,6 +227,51 @@ fun LeakGuideScreen(
                 )
             }
             NavigationBarsSpacer()
+        }
+    }
+}
+
+@Composable
+private fun LeakTestCard(state: LeakGuideState) {
+    val verdict = state.lastVerdict
+    val verdictText = when (verdict) {
+        null -> stringResource(R.string.leak_test_never_run)
+        LeakCheckPolicy.Verdict.OK -> stringResource(R.string.leak_test_verdict_ok)
+        LeakCheckPolicy.Verdict.WARNING -> stringResource(R.string.leak_test_verdict_warning)
+        LeakCheckPolicy.Verdict.LEAK -> stringResource(R.string.leak_test_verdict_leak)
+        LeakCheckPolicy.Verdict.SKIPPED -> stringResource(R.string.leak_test_verdict_skipped)
+    }
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = if (verdict == LeakCheckPolicy.Verdict.LEAK) {
+                MaterialTheme.colorScheme.errorContainer
+            } else {
+                MaterialTheme.colorScheme.surfaceVariant
+            }
+        ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(text = verdictText, style = MaterialTheme.typography.bodyMedium)
+            if (state.lastCheckTime > 0L) {
+                val time = DateUtils.getRelativeTimeSpanString(
+                    state.lastCheckTime, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS
+                ).toString()
+                Text(
+                    text = stringResource(R.string.leak_test_last_run, time),
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(top = 4.dp),
+                )
+            }
+            state.lastFindings.forEach { finding ->
+                Text(
+                    text = "• " + stringResource(NotificationManager.findingTextRes(finding)),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(top = 4.dp),
+                )
+            }
         }
     }
 }

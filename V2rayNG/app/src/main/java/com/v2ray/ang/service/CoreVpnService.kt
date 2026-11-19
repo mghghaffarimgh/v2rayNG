@@ -18,6 +18,7 @@ import com.v2ray.ang.contracts.ServiceControl
 import com.v2ray.ang.contracts.Tun2SocksControl
 import com.v2ray.ang.core.CoreServiceManager
 import com.v2ray.ang.handler.AppLocaleManager
+import com.v2ray.ang.handler.LeakCheckManager
 import com.v2ray.ang.handler.MmkvManager
 import com.v2ray.ang.handler.NotificationManager
 import com.v2ray.ang.handler.SettingsManager
@@ -45,6 +46,7 @@ class CoreVpnService : VpnService(), ServiceControl {
     /** Scope owning every coroutine this service starts; cancelled on teardown and destroy. */
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var killSwitchJob: Job? = null
+    private var leakCheckJob: Job? = null
 
     @Volatile
     private var isTearingDown = false
@@ -96,6 +98,36 @@ class CoreVpnService : VpnService(), ServiceControl {
                 NotificationManager.showLeakRisks(risks)
             } catch (e: Exception) {
                 LogUtil.w(AppConfig.TAG, "StartCore-VPN: could not report leak paths", e)
+            }
+        }
+    }
+
+    /**
+     * Runs a leak check shortly after the tunnel comes up, then every configured interval while
+     * it stays up. A newer run replaces an older one.
+     */
+    private fun startLeakChecks() {
+        leakCheckJob?.cancel()
+        val interval = LeakCheckManager.getIntervalMinutes()
+        if (interval == 0) return
+
+        leakCheckJob = serviceScope.launch {
+            // Give the core a moment to start serving before its exit is tested.
+            delay(LEAK_CHECK_FIRST_DELAY_MS)
+            var trigger = LeakCheckPolicy.Trigger.TUNNEL_UP
+            while (isActive && !isTearingDown && isRunning) {
+                try {
+                    val state = LeakCheckManager.ServiceState(
+                        killSwitchBlocking = isKillSwitchBlocking,
+                        coreHealthy = CoreServiceManager.isCoreHealthy(),
+                        socksPort = SettingsManager.getSocksPort(),
+                    )
+                    LeakCheckManager.runCheck(this@CoreVpnService, trigger, state)
+                } catch (e: Exception) {
+                    LogUtil.e(AppConfig.TAG, "StartCore-VPN: leak check failed, trigger=$trigger", e)
+                }
+                trigger = LeakCheckPolicy.Trigger.PERIODIC
+                delay(interval * 60_000L)
             }
         }
     }
@@ -169,6 +201,10 @@ class CoreVpnService : VpnService(), ServiceControl {
         }
         startService()
         reportLeakRisks()
+        // The tunnel is established (serving or blocking): from now on, until the user stops it,
+        // a missing VPN means traffic is leaving outside it.
+        LeakCheckManager.setVpnExpected(this, true)
+        startLeakChecks()
         return START_STICKY
     }
 
@@ -511,6 +547,8 @@ class CoreVpnService : VpnService(), ServiceControl {
         isTearingDown = true
         killSwitchJob?.cancel()
         killSwitchJob = null
+        leakCheckJob?.cancel()
+        leakCheckJob = null
         isKillSwitchBlocking = false
 
         unlockStart()
@@ -559,5 +597,10 @@ class CoreVpnService : VpnService(), ServiceControl {
     fun unlockStart() {
         isStartingLock.set(false)
         LogUtil.w(AppConfig.TAG, "StartCore-VPN: unlockStart")
+    }
+
+    private companion object {
+        /** Delay between the tunnel coming up and its first leak check. */
+        const val LEAK_CHECK_FIRST_DELAY_MS = 8_000L
     }
 }

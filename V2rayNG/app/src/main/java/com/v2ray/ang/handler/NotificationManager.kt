@@ -18,6 +18,7 @@ import com.v2ray.ang.dto.entities.ProfileItem
 import com.v2ray.ang.extension.delay
 import com.v2ray.ang.extension.toSpeedString
 import com.v2ray.ang.helper.NotificationHelper
+import com.v2ray.ang.service.LeakCheckPolicy
 import com.v2ray.ang.service.LeakRiskPolicy
 import com.v2ray.ang.ui.leakguide.LeakGuideActivity
 import com.v2ray.ang.ui.main.MainActivity
@@ -41,6 +42,7 @@ object NotificationManager {
     private const val NOTIFICATION_ID_LEAK_RISKS = 2
     private const val NOTIFICATION_ID_TAKEN_OVER = 3
     private const val NOTIFICATION_ID_SETUP_FAILED = 4
+    private const val NOTIFICATION_ID_LEAK_DETECTED = 5
     private const val NOTIFICATION_ICON_THRESHOLD = 3000
     private const val QUERY_INTERVAL_MS = 3000L
 
@@ -205,6 +207,42 @@ object NotificationManager {
             text = context.getString(R.string.notification_kill_switch_setup_failed),
             vpnSettings = vpnSettingsPendingIntent(context),
         )
+    }
+
+    /**
+     * Says that a leak check found traffic leaving outside the tunnel.
+     *
+     * Takes a context because the background watcher posts it from a process with no VPN service.
+     *
+     * @param context Any context.
+     * @param findings The findings, most severe first.
+     */
+    fun showLeakDetected(context: Context, findings: List<LeakCheckPolicy.Finding>) {
+        if (findings.isEmpty()) return
+        val app = AppLocaleManager.localizedContext(context.applicationContext)
+        val text = findings.joinToString("\n") { "• " + app.getString(findingTextRes(it)) }
+        postLeakNotice(
+            app,
+            id = NOTIFICATION_ID_LEAK_DETECTED,
+            title = app.getString(R.string.notification_leak_detected_title),
+            text = text,
+            vpnSettings = vpnSettingsPendingIntent(app),
+        )
+    }
+
+    /**
+     * Maps a leak check finding to its one-line description.
+     *
+     * @param finding The finding.
+     * @return The string resource naming it.
+     */
+    fun findingTextRes(finding: LeakCheckPolicy.Finding): Int = when (finding) {
+        LeakCheckPolicy.Finding.VPN_DOWN_WHILE_EXPECTED -> R.string.leak_finding_vpn_down
+        LeakCheckPolicy.Finding.OTHER_VPN_ACTIVE -> R.string.leak_finding_other_vpn
+        LeakCheckPolicy.Finding.EXIT_IP_IS_REAL_IP -> R.string.leak_finding_exit_ip_real
+        LeakCheckPolicy.Finding.TETHERING_BYPASSES_VPN -> R.string.leak_finding_tethering
+        LeakCheckPolicy.Finding.TUNNEL_PROBE_FAILED -> R.string.leak_finding_probe_failed
+        LeakCheckPolicy.Finding.IPV6_OUTSIDE_TUNNEL -> R.string.leak_finding_ipv6
     }
 
     /**
