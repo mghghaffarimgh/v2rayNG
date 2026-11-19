@@ -82,3 +82,16 @@ jobs:
       with:
         name: debug-apk
         path: ${{ github.workspace }}/V2rayNG/app/build/outputs/apk/**/debug/*.apk
+
+    # After the APK upload, so a lint finding never withholds the APK.
+    - name: Lint
+      run: |
+        cd ${{ github.workspace }}/V2rayNG
+        ./gradlew :app:lintPlaystoreDebug
+
+    - name: Upload lint report
+      uses: actions/upload-artifact@v7
+      if: ${{ always() }}
+      with:
+        name: lint-report
+        path: ${{ github.workspace }}/V2rayNG/app/build/reports/lint-results-playstoreDebug.*

@@ -202,8 +202,15 @@ class CoreVpnService : VpnService(), ServiceControl {
         startService()
         reportLeakRisks()
         // The tunnel is established (serving or blocking): from now on, until the user stops it,
-        // a missing VPN means traffic is leaving outside it.
-        LeakCheckManager.setVpnExpected(this, true)
+        // a missing VPN means traffic is leaving outside it. Settings and WorkManager stay off
+        // the main thread.
+        serviceScope.launch {
+            try {
+                LeakCheckManager.setVpnExpected(this@CoreVpnService, true)
+            } catch (e: Exception) {
+                LogUtil.e(AppConfig.TAG, "StartCore-VPN: could not record the VPN as expected", e)
+            }
+        }
         startLeakChecks()
         return START_STICKY
     }
