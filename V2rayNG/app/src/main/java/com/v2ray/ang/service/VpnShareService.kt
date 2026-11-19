@@ -64,7 +64,8 @@ class VpnShareService : Service() {
 
     override fun onDestroy() {
         try {
-            reservation?.close()
+            // A reservation exists only on Android 8+, where the local-only hotspot API exists.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) reservation?.close()
         } catch (e: Exception) {
             LogUtil.w(AppConfig.TAG, "VpnShare: closing the hotspot failed", e)
         }

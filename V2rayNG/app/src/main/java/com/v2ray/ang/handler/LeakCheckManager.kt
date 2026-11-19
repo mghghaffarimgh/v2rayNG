@@ -203,7 +203,7 @@ object LeakCheckManager {
      * Finds VPN networks and whether this app owns them.
      *
      * Uses a short-lived network callback, which delivers every matching network at once, because
-     * the one-shot network list is deprecated. Android 10+ shows a VPN's owner to its own app only,
+     * the one-shot network list is deprecated. Android 11+ shows a VPN's owner to its own app only,
      * which is enough to tell this app's VPN from another; below that every VPN counts as ours.
      *
      * @return (ours up, other up), or null when the lookup failed.
@@ -239,7 +239,7 @@ object LeakCheckManager {
     }
 
     private fun isOwnedByUs(caps: NetworkCapabilities): Boolean {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return true
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return true
         return caps.ownerUid == Process.myUid()
     }
 

@@ -3,6 +3,7 @@ package com.v2ray.ang.service
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.location.Criteria
 import android.location.Location
 import android.location.LocationManager
 import android.location.provider.ProviderProperties
@@ -175,8 +176,8 @@ class LocationSpoofService : Service() {
             true,
             true,
             true,
-            LEGACY_POWER_LOW,
-            LEGACY_ACCURACY_FINE,
+            Criteria.POWER_LOW,
+            Criteria.ACCURACY_FINE,
         )
     }
 
@@ -239,9 +240,5 @@ class LocationSpoofService : Service() {
 
     private companion object {
         const val UPDATE_INTERVAL_MS = 1_000L
-
-        /** Values of the removed Criteria.POWER_LOW and Criteria.ACCURACY_FINE constants. */
-        const val LEGACY_POWER_LOW = 1
-        const val LEGACY_ACCURACY_FINE = 1
     }
 }
