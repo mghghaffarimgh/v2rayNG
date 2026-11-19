@@ -40,6 +40,11 @@
     <!-- <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Lists the app in Developer options > "Select mock location app"; the virtual location
+         feature works only after the user selects it there. -->
+    <uses-permission
+        android:name="android.permission.ACCESS_MOCK_LOCATION"
+        tools:ignore="MockLocation,ProtectedPermissions" />
 
     <application
         android:name=".AngApplication"
@@ -133,6 +138,10 @@
         <activity
             android:name=".ui.leakguide.LeakGuideActivity"
             android:exported="false" />
+        <activity
+            android:name=".ui.location.LocationSpoofActivity"
+            android:exported="false"
+            android:windowSoftInputMode="stateUnchanged|adjustResize" />
         <activity
             android:name=".ui.perappproxy.PerAppProxyActivity"
             android:exported="false" />
@@ -261,6 +270,15 @@
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="proxy" />
+        </service>
+
+        <service
+            android:name=".service.LocationSpoofService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="location_simulation" />
         </service>
 
         <service

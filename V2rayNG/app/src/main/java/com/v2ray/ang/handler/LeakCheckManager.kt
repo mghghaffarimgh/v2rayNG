@@ -132,6 +132,10 @@ object LeakCheckManager {
             if (LeakCheckPolicy.shouldLog(evaluation, previous, trigger)) {
                 LeakLog.append(app, buildLogLine(trigger, snapshot, evaluation, serviceState))
             }
+            snapshot.tunnel?.country?.let {
+                // The virtual location screen compares its country with the VPN exit country.
+                MmkvManager.encodeSettings(AppConfig.PREF_LEAK_LAST_EXIT_COUNTRY, it)
+            }
             if (evaluation.verdict != LeakCheckPolicy.Verdict.SKIPPED) {
                 MmkvManager.encodeSettings(AppConfig.PREF_LEAK_LAST_VERDICT, evaluation.verdict.name)
                 MmkvManager.encodeSettings(AppConfig.PREF_LEAK_LAST_CHECK_TIME, System.currentTimeMillis())
@@ -148,6 +152,21 @@ object LeakCheckManager {
             LogUtil.i(AppConfig.TAG, "LeakCheck: trigger=$trigger verdict=${evaluation.verdict} findings=${evaluation.findings}")
             evaluation
         }
+
+    /** The country of the newest measured VPN exit address, or null when none was measured. */
+    fun getLastExitCountry(): String? = MmkvManager.decodeSettingsString(AppConfig.PREF_LEAK_LAST_EXIT_COUNTRY)
+
+    /**
+     * Tells whether this app's VPN is up, from any process.
+     *
+     * @param context Any context.
+     * @return True or false, or null when it cannot be told.
+     */
+    suspend fun isOurVpnUp(context: Context): Boolean? = withContext(Dispatchers.IO) {
+        val connectivity = context.applicationContext.getSystemService(ConnectivityManager::class.java)
+            ?: return@withContext null
+        findVpnOwnership(connectivity)?.first
+    }
 
     private suspend fun takeSnapshot(context: Context, trigger: Trigger, serviceState: ServiceState?): Snapshot {
         val vpnMode = SettingsManager.isVpnMode() && !SettingsManager.isRootMode()
