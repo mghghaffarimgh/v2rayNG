@@ -215,7 +215,8 @@ class LocationSpoofService : Service() {
     }
 
     private fun fail(failure: LocationSpoofManager.Failure, error: Exception?) {
-        LogUtil.e(AppConfig.TAG, "LocationSpoof: stopped, failure=$failure", error)
+        val message = "LocationSpoof: stopped, failure=$failure"
+        if (error != null) LogUtil.e(AppConfig.TAG, message, error) else LogUtil.e(AppConfig.TAG, message)
         LocationSpoofManager.setLastFailure(failure)
         MmkvManager.encodeSettings(AppConfig.PREF_SPOOF_ENABLED, false)
         val text = getString(

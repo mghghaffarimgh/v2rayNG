@@ -228,10 +228,9 @@ fun LocationSpoofScreen(
                 if (state.findings.isEmpty()) {
                     NoticeCard(text = stringResource(R.string.location_spoof_consistent), isError = false)
                 } else {
-                    NoticeCard(
-                        text = state.findings.joinToString("\n") { "• " + findingText(it) },
-                        isError = true,
-                    )
+                    // map is inline, so the composable string lookup may run inside it.
+                    val lines = state.findings.map { "• " + findingText(it) }
+                    NoticeCard(text = lines.joinToString("\n"), isError = true)
                 }
             }
             SettingsMenuItem(
