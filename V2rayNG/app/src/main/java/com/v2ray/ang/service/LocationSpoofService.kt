@@ -3,7 +3,6 @@ package com.v2ray.ang.service
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.location.Criteria
 import android.location.Location
 import android.location.LocationManager
 import android.location.provider.ProviderProperties
@@ -176,8 +175,10 @@ class LocationSpoofService : Service() {
             true,
             true,
             true,
-            Criteria.POWER_LOW,
-            Criteria.ACCURACY_FINE,
+            // Compile-time constants, inlined into the APK, so safe below API 31; the SDK
+            // annotates even this old overload with them.
+            ProviderProperties.POWER_USAGE_LOW,
+            ProviderProperties.ACCURACY_FINE,
         )
     }
 
