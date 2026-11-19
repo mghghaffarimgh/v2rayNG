@@ -40,6 +40,21 @@
     <!-- <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- VPN sharing opens a local-only hotspot: Android 13+ asks for nearby Wi-Fi devices,
+         older versions for precise location. -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission
+        android:name="android.permission.NEARBY_WIFI_DEVICES"
+        android:usesPermissionFlags="neverForLocation"
+        tools:targetApi="33" />
+    <uses-permission
+        android:name="android.permission.ACCESS_FINE_LOCATION"
+        android:maxSdkVersion="32" />
+    <!-- Android 12 ignores a precise location request that does not also ask for approximate. -->
+    <uses-permission
+        android:name="android.permission.ACCESS_COARSE_LOCATION"
+        android:maxSdkVersion="32" />
     <!-- Lists the app in Developer options > "Select mock location app"; the virtual location
          feature works only after the user selects it there. -->
     <uses-permission
@@ -137,6 +152,9 @@
             android:exported="false" />
         <activity
             android:name=".ui.leakguide.LeakGuideActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.share.VpnShareActivity"
             android:exported="false" />
         <activity
             android:name=".ui.location.LocationSpoofActivity"
@@ -270,6 +288,15 @@
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="proxy" />
+        </service>
+
+        <service
+            android:name=".service.VpnShareService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="vpn_hotspot_sharing" />
         </service>
 
         <service

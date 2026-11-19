@@ -26,5 +26,10 @@ enum class NotificationChannelType(
         channelId = "location_spoof_channel",
         channelNameRes = R.string.notification_channel_location_spoof,
         notificationId = 14
+    ),
+    VPN_SHARE(
+        channelId = "vpn_share_channel",
+        channelNameRes = R.string.notification_channel_vpn_share,
+        notificationId = 15
     )
 }

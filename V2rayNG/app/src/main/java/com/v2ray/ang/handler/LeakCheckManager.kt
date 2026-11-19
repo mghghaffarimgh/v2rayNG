@@ -192,7 +192,9 @@ object LeakCheckManager {
             direct = direct,
             ipv6Tunneled = MmkvManager.decodeSettingsBool(AppConfig.PREF_IPV6_ENABLED, false),
             underlyingGlobalIpv6 = connectivity?.let { hasGlobalIpv6(it) } ?: false,
-            tetheringInterfaces = findTetheringInterfaces(),
+            // The share hotspot has no internet route of its own; its clients reach the internet
+            // only through the proxy, so it is not a tethering leak.
+            tetheringInterfaces = findTetheringInterfaces() - setOfNotNull(VpnShareManager.getActiveShareInterface()),
             rootLanSharing = MmkvManager.decodeSettingsBool(AppConfig.PREF_ROOT_LAN_SHARING, false),
         )
     }

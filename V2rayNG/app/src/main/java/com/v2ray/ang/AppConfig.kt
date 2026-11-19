@@ -47,6 +47,8 @@ object AppConfig {
     const val PREF_SPOOF_LATITUDE = "pref_spoof_location_latitude"
     const val PREF_SPOOF_LONGITUDE = "pref_spoof_location_longitude"
     const val PREF_SPOOF_LAST_ERROR = "pref_spoof_location_last_error"
+    const val PREF_SHARE_INTERFACE = "pref_vpn_share_interface"
+    const val PREF_SHARE_OWNS_PROXY_SHARING = "pref_vpn_share_owns_proxy_sharing"
     const val PREF_ROUTING_DOMAIN_STRATEGY = "pref_routing_domain_strategy"
     const val PREF_ROUTING_RULESET = "pref_routing_ruleset"
     const val PREF_MUX_ENABLED = "pref_mux_enabled"
