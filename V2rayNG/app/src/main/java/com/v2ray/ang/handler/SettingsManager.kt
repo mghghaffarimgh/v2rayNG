@@ -424,6 +424,14 @@ object SettingsManager {
     }
 
     /**
+     * Turns the VPN kill switch on or off.
+     * @param enabled The new value.
+     */
+    fun setKillSwitchEnabled(enabled: Boolean) {
+        MmkvManager.encodeSettings(AppConfig.PREF_KILL_SWITCH, enabled)
+    }
+
+    /**
      * Check if the app warns about leak paths when the tunnel comes up.
      * @return True if leak warnings are enabled, false otherwise.
      */

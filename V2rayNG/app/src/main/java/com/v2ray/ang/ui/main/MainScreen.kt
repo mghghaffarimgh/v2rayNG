@@ -210,6 +210,7 @@ fun MainScreen(
                             end = innerPadding.calculateEndPadding(layoutDirection)
                         )
                 ) {
+                    MainProtectionBar(state = uiState.protection, onAction = onAction, onNavigate = onNavigate)
                     if (groups.size > 1) {
                         GroupTabBar(
                             groups = groups,
@@ -265,6 +266,14 @@ fun MainScreen(
                         )
                     }
                 }
+            } else {
+                // No servers yet: the protection controls still belong on the main screen.
+                MainProtectionBar(
+                    state = uiState.protection,
+                    onAction = onAction,
+                    onNavigate = onNavigate,
+                    modifier = Modifier.padding(top = innerPadding.calculateTopPadding()),
+                )
             }
             MainBottomBar(
                 displayText = displayText,

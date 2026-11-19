@@ -29,7 +29,9 @@ import com.v2ray.ang.ui.AboutActivity
 import com.v2ray.ang.ui.backup.BackupActivity
 import com.v2ray.ang.ui.base.HelperBaseComponentActivity
 import com.v2ray.ang.ui.checkupdate.CheckUpdateActivity
+import com.v2ray.ang.ui.leakguide.LeakGuideActivity
 import com.v2ray.ang.ui.leaktest.LeakTestActivity
+import com.v2ray.ang.ui.location.LocationSpoofActivity
 import com.v2ray.ang.ui.logcat.LogcatActivity
 import com.v2ray.ang.ui.perappproxy.PerAppProxyActivity
 import com.v2ray.ang.ui.routing.RoutingSettingActivity
@@ -101,6 +103,12 @@ class MainActivity : HelperBaseComponentActivity() {
         checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {}
     }
 
+    override fun onResume() {
+        super.onResume()
+        // The protection controls change on other screens and in the services; read them again.
+        mainViewModel.onAction(MainAction.RefreshProtection)
+    }
+
     @Composable
     override fun ScreenContent() {
         BackHandler { moveTaskToBack(false) }
@@ -154,6 +162,8 @@ class MainActivity : HelperBaseComponentActivity() {
             MainDestination.Routing -> Intent(this, RoutingSettingActivity::class.java)
             MainDestination.VpnShare -> Intent(this, VpnShareActivity::class.java)
             MainDestination.LeakTest -> Intent(this, LeakTestActivity::class.java)
+            MainDestination.LeakGuide -> Intent(this, LeakGuideActivity::class.java)
+            MainDestination.VirtualLocation -> Intent(this, LocationSpoofActivity::class.java)
             MainDestination.UserAssets -> Intent(this, UserAssetActivity::class.java)
             MainDestination.Settings -> Intent(this, SettingsActivity::class.java)
             MainDestination.Logcat -> Intent(this, LogcatActivity::class.java)

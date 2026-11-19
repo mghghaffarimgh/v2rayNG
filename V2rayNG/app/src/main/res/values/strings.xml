@@ -728,4 +728,12 @@
     <string name="leak_tester_loc_virtual_ok">Apps receive the virtual position. It is marked as simulated, which apps can check.</string>
     <string name="leak_tester_loc_distance">Distance from the virtual position: %1$s</string>
     <string name="leak_test_interval_random">3 times per hour, at random times</string>
+    <string name="main_chip_vpn_share">VPN sharing</string>
+    <string name="main_chip_leak_test">Leak test</string>
+    <string name="main_chip_leak_test_ok">Leak test: OK</string>
+    <string name="main_chip_leak_test_leak">Leak found!</string>
+    <string name="main_chip_no_leak_paths">No leak paths</string>
+    <string name="main_chip_leak_paths">Leak paths: %1$d</string>
+    <string name="toast_kill_switch_on">Kill switch on</string>
+    <string name="toast_kill_switch_off">Kill switch off</string>
 </resources>

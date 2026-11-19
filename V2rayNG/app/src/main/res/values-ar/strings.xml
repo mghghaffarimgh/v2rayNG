@@ -735,4 +735,12 @@
     <string name="leak_tester_loc_virtual_ok">تتلقى التطبيقات الموقع الافتراضي. وهو موسوم بأنه محاكى، ويمكن للتطبيقات التحقق من ذلك.</string>
     <string name="leak_tester_loc_distance">المسافة عن الموقع الافتراضي: %1$s</string>
     <string name="leak_test_interval_random">3 مرات في الساعة، في أوقات عشوائية</string>
+    <string name="main_chip_vpn_share">مشاركة VPN</string>
+    <string name="main_chip_leak_test">اختبار التسرّب</string>
+    <string name="main_chip_leak_test_ok">اختبار التسرّب: سليم</string>
+    <string name="main_chip_leak_test_leak">تم العثور على تسرّب!</string>
+    <string name="main_chip_no_leak_paths">لا طرق تسرّب</string>
+    <string name="main_chip_leak_paths">طرق التسرّب: %1$d</string>
+    <string name="toast_kill_switch_on">تم تفعيل مفتاح الإيقاف</string>
+    <string name="toast_kill_switch_off">تم إيقاف مفتاح الإيقاف</string>
 </resources>

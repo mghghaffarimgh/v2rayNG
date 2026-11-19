@@ -725,4 +725,12 @@
     <string name="leak_tester_loc_virtual_ok">Ứng dụng nhận vị trí ảo. Vị trí này được đánh dấu là giả lập và ứng dụng có thể kiểm tra điều đó.</string>
     <string name="leak_tester_loc_distance">Khoảng cách tới vị trí ảo: %1$s</string>
     <string name="leak_test_interval_random">3 lần mỗi giờ, vào thời điểm ngẫu nhiên</string>
+    <string name="main_chip_vpn_share">Chia sẻ VPN</string>
+    <string name="main_chip_leak_test">Kiểm tra rò rỉ</string>
+    <string name="main_chip_leak_test_ok">Rò rỉ: không có</string>
+    <string name="main_chip_leak_test_leak">Phát hiện rò rỉ!</string>
+    <string name="main_chip_no_leak_paths">Không có đường rò rỉ</string>
+    <string name="main_chip_leak_paths">Đường rò rỉ: %1$d</string>
+    <string name="toast_kill_switch_on">Đã bật kill switch</string>
+    <string name="toast_kill_switch_off">Đã tắt kill switch</string>
 </resources>

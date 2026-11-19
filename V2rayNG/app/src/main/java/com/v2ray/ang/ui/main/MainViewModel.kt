@@ -18,7 +18,14 @@ import com.v2ray.ang.extension.delay
 import com.v2ray.ang.extension.isComplexType
 import com.v2ray.ang.extension.matchesPattern
 import com.v2ray.ang.extension.moveItem
+import com.v2ray.ang.core.LauncherManager
+import com.v2ray.ang.handler.LocationSpoofManager
+import com.v2ray.ang.handler.MmkvManager
+import com.v2ray.ang.handler.SettingsManager
 import com.v2ray.ang.handler.SubscriptionInfoParser
+import com.v2ray.ang.handler.VpnShareManager
+import com.v2ray.ang.service.LeakCheckPolicy
+import com.v2ray.ang.service.LeakRiskPolicy
 import com.v2ray.ang.ui.base.BaseViewModel
 import com.v2ray.ang.util.LogUtil
 import kotlinx.coroutines.CancellationException
@@ -293,6 +300,9 @@ class MainViewModel(
             is MainAction.Search -> filterConfig(action.query)
             is MainAction.ImportBatchConfig -> importBatchConfig(action.configText)
             MainAction.LocateHandled -> consumeLocateTarget()
+            MainAction.RefreshProtection -> refreshProtection()
+            is MainAction.SetKillSwitch -> setKillSwitch(action.enabled)
+            is MainAction.SetVirtualLocation -> setVirtualLocation(action.enabled)
             is MainAction.ShareQRCode -> {
                 val bitmap = dataSource.share2QRCode(action.guid)
                 _uiState.update { it.copy(shareQRCodeBitmap = bitmap) }
@@ -332,6 +342,63 @@ class MainViewModel(
             } catch (error: Exception) {
                 LogUtil.e(AppConfig.TAG, "Main background initialization failed", error)
             }
+        }
+    }
+
+    // ---------- Protection controls ----------
+    private var protectionJob: Job? = null
+
+    /** Reads the protection features' state again; a newer refresh replaces one still running. */
+    private fun refreshProtection() {
+        protectionJob?.cancel()
+        protectionJob = viewModelScope.launch {
+            val state = withContext(Dispatchers.IO) {
+                try {
+                    val target = LocationSpoofManager.getTarget()
+                    ProtectionState(
+                        killSwitch = SettingsManager.isKillSwitchEnabled(),
+                        virtualLocation = LocationSpoofManager.isEnabled(),
+                        virtualLocationReady = MainProtectionPolicy.virtualLocationReady(
+                            hasTarget = target != null,
+                            refused = LocationSpoofManager.getLastFailure() == LocationSpoofManager.Failure.NOT_MOCK_APP,
+                        ),
+                        shareRunning = VpnShareManager.status.value.running,
+                        lastLeakVerdict = MmkvManager.decodeSettingsString(AppConfig.PREF_LEAK_LAST_VERDICT)
+                            ?.let { stored -> LeakCheckPolicy.Verdict.entries.firstOrNull { it.name == stored } },
+                        openRisks = LeakRiskPolicy.risks(SettingsManager.getLeakRiskInputs()).size,
+                    )
+                } catch (e: Exception) {
+                    LogUtil.e(AppConfig.TAG, "Main: could not read protection state", e)
+                    null
+                }
+            } ?: return@launch
+            _uiState.update { it.copy(protection = state) }
+        }
+    }
+
+    /**
+     * Turns the kill switch on or off from the main screen.
+     *
+     * The watchdog that holds the tunnel is started with the VPN, so turning it on while
+     * connected restarts the VPN to arm it; turning it off needs no restart, the running
+     * watchdog reads the setting itself.
+     */
+    private fun setKillSwitch(enabled: Boolean) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) { SettingsManager.setKillSwitchEnabled(enabled) }
+            if (enabled && uiState.value.isRunning) {
+                LauncherManager.restartService(app)
+            }
+            toast(if (enabled) R.string.toast_kill_switch_on else R.string.toast_kill_switch_off)
+            refreshProtection()
+        }
+    }
+
+    /** Switches the virtual location on or off from the main screen. */
+    private fun setVirtualLocation(enabled: Boolean) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) { LocationSpoofManager.setEnabled(app, enabled) }
+            refreshProtection()
         }
     }
 

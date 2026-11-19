@@ -726,4 +726,12 @@
     <string name="leak_tester_loc_virtual_ok">অ্যাপগুলো ভার্চুয়াল অবস্থান পাচ্ছে। এটি কৃত্রিম হিসেবে চিহ্নিত, এবং অ্যাপগুলো তা যাচাই করতে পারে।</string>
     <string name="leak_tester_loc_distance">ভার্চুয়াল অবস্থান থেকে দূরত্ব: %1$s</string>
     <string name="leak_test_interval_random">প্রতি ঘণ্টায় 3 বার, এলোমেলো সময়ে</string>
+    <string name="main_chip_vpn_share">VPN শেয়ারিং</string>
+    <string name="main_chip_leak_test">লিক পরীক্ষা</string>
+    <string name="main_chip_leak_test_ok">লিক পরীক্ষা: ঠিক আছে</string>
+    <string name="main_chip_leak_test_leak">লিক পাওয়া গেছে!</string>
+    <string name="main_chip_no_leak_paths">কোনো লিকের পথ নেই</string>
+    <string name="main_chip_leak_paths">লিকের পথ: %1$d</string>
+    <string name="toast_kill_switch_on">কিল সুইচ চালু হয়েছে</string>
+    <string name="toast_kill_switch_off">কিল সুইচ বন্ধ হয়েছে</string>
 </resources>

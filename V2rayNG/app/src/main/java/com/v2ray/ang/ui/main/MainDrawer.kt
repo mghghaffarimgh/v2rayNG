@@ -40,6 +40,10 @@ enum class MainDestination(@DrawableRes val iconRes: Int, @StringRes val labelRe
     Routing(R.drawable.ic_routing_24dp, R.string.routing_settings_title),
     VpnShare(R.drawable.ic_share_24dp, R.string.title_vpn_share),
     LeakTest(R.drawable.ic_privacy_24dp, R.string.title_leak_tester),
+
+    // Reached from the main screen's protection controls, not listed in the drawer.
+    LeakGuide(R.drawable.ic_privacy_24dp, R.string.title_leak_guide),
+    VirtualLocation(R.drawable.ic_routing_24dp, R.string.title_location_spoof),
     UserAssets(R.drawable.ic_file_24dp, R.string.title_user_asset_setting),
     Settings(R.drawable.ic_settings_24dp, R.string.title_settings),
     Promotion(R.drawable.ic_promotion_24dp, R.string.title_pref_promotion),

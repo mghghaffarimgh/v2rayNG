@@ -725,4 +725,12 @@
     <string name="leak_tester_loc_virtual_ok">應用程式收到的是虛擬位置。它被標記為模擬位置，應用程式可以檢查這一點。</string>
     <string name="leak_tester_loc_distance">與虛擬位置的距離：%1$s</string>
     <string name="leak_test_interval_random">每小時 3 次，隨機時間</string>
+    <string name="main_chip_vpn_share">VPN 分享</string>
+    <string name="main_chip_leak_test">洩漏測試</string>
+    <string name="main_chip_leak_test_ok">洩漏測試：正常</string>
+    <string name="main_chip_leak_test_leak">發現洩漏！</string>
+    <string name="main_chip_no_leak_paths">無洩漏途徑</string>
+    <string name="main_chip_leak_paths">洩漏途徑：%1$d</string>
+    <string name="toast_kill_switch_on">終止開關已開啟</string>
+    <string name="toast_kill_switch_off">終止開關已關閉</string>
 </resources>

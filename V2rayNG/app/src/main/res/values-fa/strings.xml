@@ -727,4 +727,12 @@
     <string name="leak_tester_loc_virtual_ok">برنامه‌ها موقعیت مجازی را دریافت می‌کنند. این موقعیت شبیه‌سازی‌شده علامت خورده و برنامه‌ها می‌توانند این را بررسی کنند.</string>
     <string name="leak_tester_loc_distance">فاصله از موقعیت مجازی: %1$s</string>
     <string name="leak_test_interval_random">ساعتی ۳ بار، در زمان‌های تصادفی</string>
+    <string name="main_chip_vpn_share">اشتراک VPN</string>
+    <string name="main_chip_leak_test">تست نشت</string>
+    <string name="main_chip_leak_test_ok">تست نشت: سالم</string>
+    <string name="main_chip_leak_test_leak">نشت پیدا شد!</string>
+    <string name="main_chip_no_leak_paths">راه نشتی باز نیست</string>
+    <string name="main_chip_leak_paths">راه‌های نشت: %1$d</string>
+    <string name="toast_kill_switch_on">کیل‌سوئیچ روشن شد</string>
+    <string name="toast_kill_switch_off">کیل‌سوئیچ خاموش شد</string>
 </resources>

@@ -26,7 +26,28 @@ data class MainUiState(
     val locateTarget: LocateTarget? = null,
     val confirmRemove: Boolean = false,
     val doubleColumnDisplay: Boolean = false,
-    val shareQRCodeBitmap: android.graphics.Bitmap? = null
+    val shareQRCodeBitmap: android.graphics.Bitmap? = null,
+    val protection: ProtectionState = ProtectionState()
+)
+
+/**
+ * The protection features shown as one-tap controls on the main screen.
+ *
+ * @property killSwitch The kill switch setting.
+ * @property virtualLocation True while the virtual location is switched on.
+ * @property virtualLocationReady True when a position is chosen and Android has not refused it,
+ *   so the main screen can switch it directly instead of sending the user to its screen.
+ * @property shareRunning True while the VPN sharing hotspot is up.
+ * @property lastLeakVerdict The verdict of the newest leak check, null before the first.
+ * @property openRisks How many known leak paths the current settings leave open.
+ */
+data class ProtectionState(
+    val killSwitch: Boolean = false,
+    val virtualLocation: Boolean = false,
+    val virtualLocationReady: Boolean = false,
+    val shareRunning: Boolean = false,
+    val lastLeakVerdict: com.v2ray.ang.service.LeakCheckPolicy.Verdict? = null,
+    val openRisks: Int = 0,
 )
 
 /**
@@ -69,4 +90,8 @@ sealed interface MainAction {
     data class ImportBatchConfig(val configText: String) : MainAction
 
     data object LocateHandled : MainAction
+
+    data object RefreshProtection : MainAction
+    data class SetKillSwitch(val enabled: Boolean) : MainAction
+    data class SetVirtualLocation(val enabled: Boolean) : MainAction
 }

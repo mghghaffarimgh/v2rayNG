@@ -727,4 +727,12 @@
     <string name="leak_tester_loc_virtual_ok">Tətbiqlər virtual məkanı alır. O, simulyasiya kimi işarələnib və tətbiqlər bunu yoxlaya bilər.</string>
     <string name="leak_tester_loc_distance">Virtual məkandan məsafə: %1$s</string>
     <string name="leak_test_interval_random">Saatda 3 dəfə, təsadüfi vaxtlarda</string>
+    <string name="main_chip_vpn_share">VPN paylaşımı</string>
+    <string name="main_chip_leak_test">Sızma testi</string>
+    <string name="main_chip_leak_test_ok">Sızma testi: təmiz</string>
+    <string name="main_chip_leak_test_leak">Sızma tapıldı!</string>
+    <string name="main_chip_no_leak_paths">Sızma yolu yoxdur</string>
+    <string name="main_chip_leak_paths">Sızma yolları: %1$d</string>
+    <string name="toast_kill_switch_on">Kill switch açıldı</string>
+    <string name="toast_kill_switch_off">Kill switch bağlandı</string>
 </resources>

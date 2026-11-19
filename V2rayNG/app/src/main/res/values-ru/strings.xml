@@ -731,4 +731,12 @@
     <string name="leak_tester_loc_virtual_ok">Приложения получают виртуальное местоположение. Оно помечено как смоделированное, и приложения могут это проверить.</string>
     <string name="leak_tester_loc_distance">Расстояние до виртуального места: %1$s</string>
     <string name="leak_test_interval_random">3 раза в час, в случайное время</string>
+    <string name="main_chip_vpn_share">Раздача VPN</string>
+    <string name="main_chip_leak_test">Проверка утечек</string>
+    <string name="main_chip_leak_test_ok">Утечек нет</string>
+    <string name="main_chip_leak_test_leak">Найдена утечка!</string>
+    <string name="main_chip_no_leak_paths">Путей утечки нет</string>
+    <string name="main_chip_leak_paths">Путей утечки: %1$d</string>
+    <string name="toast_kill_switch_on">Kill switch включён</string>
+    <string name="toast_kill_switch_off">Kill switch выключен</string>
 </resources>
