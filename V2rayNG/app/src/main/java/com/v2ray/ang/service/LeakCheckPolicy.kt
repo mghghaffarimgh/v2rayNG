@@ -10,6 +10,36 @@ package com.v2ray.ang.service
  */
 object LeakCheckPolicy {
 
+    /** Interval value meaning "a few checks per hour at random times" instead of fixed minutes. */
+    const val RANDOM_SCHEDULE = -1
+
+    /** Checks per hour in the random schedule. */
+    const val RANDOM_CHECKS_PER_HOUR = 3
+
+    /** Length of one random-schedule slot; each slot gets exactly one check. */
+    const val RANDOM_SLOT_MS = 60 * 60 * 1000L / RANDOM_CHECKS_PER_HOUR
+
+    /** Keeps checks of neighbouring slots at least twice this far apart. */
+    private const val RANDOM_SLOT_MARGIN_MS = 60 * 1000L
+
+    /**
+     * Picks the moment of the check in one slot of the random schedule.
+     *
+     * The hour is cut into [RANDOM_CHECKS_PER_HOUR] equal slots and each gets one check at a
+     * uniformly random moment, so there are exactly that many checks per hour, yet nothing on the
+     * network side can predict them. A margin at both ends of a slot keeps two checks from
+     * running back to back across a slot boundary.
+     *
+     * @param slotStartMs When the slot starts.
+     * @param random The random source, injectable for tests.
+     * @param slotLengthMs The slot length.
+     * @return When the check runs, inside the slot.
+     */
+    fun randomTimeInSlot(slotStartMs: Long, random: kotlin.random.Random, slotLengthMs: Long = RANDOM_SLOT_MS): Long {
+        val margin = minOf(RANDOM_SLOT_MARGIN_MS, slotLengthMs / 4)
+        return slotStartMs + margin + random.nextLong(slotLengthMs - 2 * margin + 1)
+    }
+
     /** What started a check; written to the log so a leak can be tied to its moment. */
     enum class Trigger {
         /** The tunnel just came up. */

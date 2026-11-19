@@ -706,4 +706,24 @@
     <string name="vpn_share_failure_disallowed">اشتراک اینترنت روی این گوشی توسط اپراتور یا سیاست دستگاه مسدود شده است.</string>
     <string name="vpn_share_failure_unsupported">این گوشی یا نسخهٔ اندروید نمی‌تواند شبکهٔ Wi-Fi محلی باز کند (اندروید ۸ یا جدیدتر لازم است).</string>
     <string name="vpn_share_failure_generic">شبکهٔ Wi-Fi باز نشد. Wi-Fi و موقعیت مکانی را روشن کنید و دوباره امتحان کنید.</string>
+    <string name="title_leak_tester">تست نشت IP و موقعیت</string>
+    <string name="leak_tester_intro">همین حالا بررسی می‌کند ترافیک شما با چه آدرس IP به اینترنت می‌رسد و برنومه‌ها چه موقعیتی دریافت می‌کنند، و می‌گوید آیا هرکدام از آن‌ها مقدار واقعی را لو می‌دهد یا نه.</string>
+    <string name="leak_tester_start">شروع تست</string>
+    <string name="leak_tester_schedule_note">تا وقتی VPN وصل است، تست IP خودبه‌خود ساعتی سه بار در لحظه‌های تصادفی هم اجرا می‌شود و اگر نشتی پیدا کند به شما خبر می‌دهد. این را در راهنمای جلوگیری از نشت می‌توانید تغییر دهید.</string>
+    <string name="leak_tester_ip_title">آدرس IP</string>
+    <string name="leak_tester_ip_ok">نشت IP نیست: اینترنت آدرس VPN را می‌بیند.</string>
+    <string name="leak_tester_ip_warning">نشت IP پیدا نشد، ولی بخشی از تست کامل نشد.</string>
+    <string name="leak_tester_ip_leak">نشت IP: ترافیک بدون VPN به اینترنت می‌رسد.</string>
+    <string name="leak_tester_exit_ip">دیده‌شده از طریق VPN: %1$s (%2$s)</string>
+    <string name="leak_tester_exit_ip_unknown">آدرس از طریق VPN اندازه‌گیری نشد.</string>
+    <string name="leak_tester_real_ip">آدرس واقعی شما: %1$s (%2$s)</string>
+    <string name="leak_tester_loc_title">موقعیت مکانی</string>
+    <string name="leak_tester_loc_no_permission">تست نشد: به این برنومه اجازهٔ موقعیت بدهید تا ببیند برنومه‌های دیگر چه دریافت می‌کنند.</string>
+    <string name="leak_tester_loc_off">موقعیت مکانی خاموش است: برنومه‌ها هیچ موقعیتی دریافت نمی‌کنند.</string>
+    <string name="leak_tester_loc_no_fix">موقعیتی به‌موقع نرسید؛ در فضای باز یا با Wi-Fi روشن دوباره امتحان کنید.</string>
+    <string name="leak_tester_loc_real_visible">برنومه‌هایی که اجازهٔ موقعیت دارند موقعیت واقعی شما را می‌بینند. VPN آدرس IP را پنهان می‌کند، نه موقعیت را؛ سی تغییر آن موقعیت مجازی را روشن کنید.</string>
+    <string name="leak_tester_loc_virtual_not_applied">نشت موقعیت: موقعیت مجازی روشن است، ولی برنومه‌ها موقعیتی دور از آن دریافت می‌کنند که به احتمال زیاد موقعیت واقعی شماست.</string>
+    <string name="leak_tester_loc_virtual_ok">برنومه‌ها موقعیت مجازی را دریافت می‌کنند. این موقعیت شبیه‌سازی‌شده علامت خورده و برنومه‌ها می‌توانند این را بررسی کنند.</string>
+    <string name="leak_tester_loc_distance">فاصله از موقعیت مجازی: %1$s</string>
+    <string name="leak_test_interval_random">ساعتی ۳ بار، در زمان‌های تصادفی</string>
 </resources>

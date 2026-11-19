@@ -11,6 +11,7 @@ import android.net.VpnService
 import android.os.Build
 import android.os.ParcelFileDescriptor
 import android.os.StrictMode
+import android.os.SystemClock
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.AppConfig.LOOPBACK
 import com.v2ray.ang.BuildConfig
@@ -103,8 +104,9 @@ class CoreVpnService : VpnService(), ServiceControl {
     }
 
     /**
-     * Runs a leak check shortly after the tunnel comes up, then every configured interval while
-     * it stays up. A newer run replaces an older one.
+     * Runs a leak check shortly after the tunnel comes up, then on the configured schedule while
+     * it stays up: three times per hour at random moments, or every fixed interval. A newer run
+     * replaces an older one.
      */
     private fun startLeakChecks() {
         leakCheckJob?.cancel()
@@ -114,6 +116,8 @@ class CoreVpnService : VpnService(), ServiceControl {
         leakCheckJob = serviceScope.launch {
             // Give the core a moment to start serving before its exit is tested.
             delay(LEAK_CHECK_FIRST_DELAY_MS)
+            val random = kotlin.random.Random(System.nanoTime())
+            var slotStart = SystemClock.elapsedRealtime()
             var trigger = LeakCheckPolicy.Trigger.TUNNEL_UP
             while (isActive && !isTearingDown && isRunning) {
                 try {
@@ -127,7 +131,17 @@ class CoreVpnService : VpnService(), ServiceControl {
                     LogUtil.e(AppConfig.TAG, "StartCore-VPN: leak check failed, trigger=$trigger", e)
                 }
                 trigger = LeakCheckPolicy.Trigger.PERIODIC
-                delay(interval * 60_000L)
+                if (interval == LeakCheckPolicy.RANDOM_SCHEDULE) {
+                    // One check at a random moment in each third of an hour. After a long sleep,
+                    // start from now instead of running every missed slot back to back.
+                    val now = SystemClock.elapsedRealtime()
+                    if (slotStart + LeakCheckPolicy.RANDOM_SLOT_MS <= now) slotStart = now
+                    val at = LeakCheckPolicy.randomTimeInSlot(slotStart, random)
+                    slotStart += LeakCheckPolicy.RANDOM_SLOT_MS
+                    delay((at - SystemClock.elapsedRealtime()).coerceAtLeast(0L))
+                } else {
+                    delay(interval * 60_000L)
+                }
             }
         }
     }

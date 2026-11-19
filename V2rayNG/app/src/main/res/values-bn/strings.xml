@@ -706,4 +706,24 @@
     <string name="vpn_share_failure_disallowed">এই ফোনে টেদারিং অপারেটর বা ডিভাইস নীতির কারণে বন্ধ।</string>
     <string name="vpn_share_failure_unsupported">এই ফোন বা Android সংস্করণ লোকাল Wi-Fi নেটওয়ার্ক খুলতে পারে না (Android 8 বা নতুন লাগবে)।</string>
     <string name="vpn_share_failure_generic">Wi-Fi নেটওয়ার্ক খোলা যায়নি। Wi-Fi ও অবস্থান চালু করে আবার চেষ্টা করুন।</string>
+    <string name="title_leak_tester">IP ও অবস্থান লিক পরীক্ষা</string>
+    <string name="leak_tester_intro">এখনই পরীক্ষা করে আপনার ট্রাফিক কোন IP ঠিকানায় ইন্টারনেটে পৌঁছায় এবং অ্যাপগুলো কোন অবস্থান পায়, আর জানায় এর কোনোটি আসল মান প্রকাশ করছে কি না।</string>
+    <string name="leak_tester_start">পরীক্ষা শুরু করুন</string>
+    <string name="leak_tester_schedule_note">VPN সংযুক্ত থাকার সময় IP পরীক্ষা নিজে থেকেও প্রতি ঘণ্টায় এলোমেলো সময়ে তিনবার চলে এবং লিক পেলে আপনাকে জানায়। লিক সুরক্ষা নির্দেশিকায় এটি বদলাতে পারেন।</string>
+    <string name="leak_tester_ip_title">IP ঠিকানা</string>
+    <string name="leak_tester_ip_ok">কোনো IP লিক নেই: ইন্টারনেট VPN-এর ঠিকানা দেখছে।</string>
+    <string name="leak_tester_ip_warning">কোনো IP লিক পাওয়া যায়নি, তবে পরীক্ষার কিছু অংশ সম্পূর্ণ হয়নি।</string>
+    <string name="leak_tester_ip_leak">IP লিক: ট্রাফিক VPN ছাড়াই ইন্টারনেটে পৌঁছাচ্ছে।</string>
+    <string name="leak_tester_exit_ip">VPN দিয়ে দেখা: %1$s (%2$s)</string>
+    <string name="leak_tester_exit_ip_unknown">VPN দিয়ে ঠিকানা মাপা যায়নি।</string>
+    <string name="leak_tester_real_ip">আপনার আসল ঠিকানা: %1$s (%2$s)</string>
+    <string name="leak_tester_loc_title">অবস্থান</string>
+    <string name="leak_tester_loc_no_permission">পরীক্ষা হয়নি: অন্য অ্যাপ কী পায় দেখতে এই অ্যাপকে অবস্থানের অনুমতি দিন।</string>
+    <string name="leak_tester_loc_off">অবস্থান বন্ধ: অ্যাপগুলো কোনো অবস্থানই পায় না।</string>
+    <string name="leak_tester_loc_no_fix">সময়মতো কোনো অবস্থান আসেনি; খোলা জায়গায় বা Wi-Fi চালু রেখে আবার চেষ্টা করুন।</string>
+    <string name="leak_tester_loc_real_visible">অবস্থানের অনুমতি থাকা অ্যাপগুলো আপনার আসল অবস্থান দেখে। VPN IP লুকায়, অবস্থান নয়; বদলাতে ভার্চুয়াল অবস্থান চালু করুন।</string>
+    <string name="leak_tester_loc_virtual_not_applied">অবস্থান লিক: ভার্চুয়াল অবস্থান চালু, কিন্তু অ্যাপগুলো তার থেকে দূরের একটি অবস্থান পাচ্ছে, সম্ভবত আপনার আসল অবস্থান।</string>
+    <string name="leak_tester_loc_virtual_ok">অ্যাপগুলো ভার্চুয়াল অবস্থান পাচ্ছে। এটি কৃত্রিম হিসেবে চিহ্নিত, এবং অ্যাপগুলো তা যাচাই করতে পারে।</string>
+    <string name="leak_tester_loc_distance">ভার্চুয়াল অবস্থান থেকে দূরত্ব: %1$s</string>
+    <string name="leak_test_interval_random">প্রতি ঘণ্টায় 3 বার, এলোমেলো সময়ে</string>
 </resources>

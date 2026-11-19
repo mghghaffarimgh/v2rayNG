@@ -151,6 +151,26 @@ class LeakCheckPolicyTest {
     }
 
     @Test
+    fun randomScheduleRunsThreeTimesPerHourInsideTheirSlots() {
+        val random = kotlin.random.Random(7)
+        val hour = 60 * 60 * 1000L
+        assertEquals(3, LeakCheckPolicy.RANDOM_CHECKS_PER_HOUR)
+        assertEquals(hour / 3, LeakCheckPolicy.RANDOM_SLOT_MS)
+        var previous = Long.MIN_VALUE
+        val distinct = mutableSetOf<Long>()
+        repeat(300) { slot ->
+            val start = slot * LeakCheckPolicy.RANDOM_SLOT_MS
+            val at = LeakCheckPolicy.randomTimeInSlot(start, random)
+            assertTrue(at >= start + 60_000L && at <= start + LeakCheckPolicy.RANDOM_SLOT_MS - 60_000L)
+            if (previous != Long.MIN_VALUE) assertTrue(at - previous >= 120_000L)
+            previous = at
+            distinct += at - start
+        }
+        // Moments vary from slot to slot instead of repeating a fixed offset.
+        assertTrue(distinct.size > 250)
+    }
+
+    @Test
     fun addressComparisonNeedsBothSides() {
         assertTrue(LeakCheckPolicy.isSameAddress("2001:DB8::1", "2001:db8::1"))
         assertFalse(LeakCheckPolicy.isSameAddress(null, "203.0.113.7"))

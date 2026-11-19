@@ -1,16 +1,27 @@
 package com.v2ray.ang.handler
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationManager
+import android.os.Build
+import android.os.CancellationSignal
 import android.provider.Settings
 import android.telephony.TelephonyManager
 import androidx.core.content.ContextCompat
+import androidx.core.location.LocationCompat
+import androidx.core.location.LocationManagerCompat
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.service.LocationSpoofService
 import com.v2ray.ang.util.LogUtil
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import java.util.TimeZone
+import kotlin.coroutines.resume
 
 /**
  * Owns the virtual location settings and starts or stops [LocationSpoofService].
@@ -20,6 +31,8 @@ import java.util.TimeZone
  * skips that step.
  */
 object LocationSpoofManager {
+
+    private const val LOCATION_PROBE_TIMEOUT_MS = 15_000L
 
     /**
      * The position to report.
@@ -128,6 +141,69 @@ object LocationSpoofManager {
             networkCountry = telephony?.networkCountryIso,
             wifiScanAlwaysOn = readWifiScanAlwaysOn(app),
         )
+    }
+
+    /**
+     * Reads the position the system gives apps right now, the way any app with location
+     * permission would, for the location leak test.
+     *
+     * @param context Any context.
+     * @return What the test saw, for [LocationLeakPolicy.evaluate].
+     */
+    suspend fun probeLocation(context: Context): LocationLeakPolicy.Input = withContext(Dispatchers.IO) {
+        val app = context.applicationContext
+        val target = getTarget()
+        val base = LocationLeakPolicy.Input(
+            permissionGranted = hasLocationPermission(app),
+            locationEnabled = false,
+            reported = null,
+            spoofEnabled = isEnabled(),
+            targetLatitude = target?.latitude,
+            targetLongitude = target?.longitude,
+        )
+        val manager = app.getSystemService(LocationManager::class.java) ?: return@withContext base
+        if (!base.permissionGranted) return@withContext base
+        if (!LocationManagerCompat.isLocationEnabled(manager)) return@withContext base
+
+        val location = withTimeoutOrNull(LOCATION_PROBE_TIMEOUT_MS) { currentLocation(app, manager) }
+        base.copy(
+            locationEnabled = true,
+            reported = location?.let {
+                LocationLeakPolicy.Reported(it.latitude, it.longitude, LocationCompat.isMock(it))
+            },
+        )
+    }
+
+    /** True when this app may read the approximate or precise location. */
+    fun hasLocationPermission(context: Context): Boolean =
+        ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+
+    /**
+     * Asks for one fresh position from the best enabled provider; null when none answers.
+     */
+    private suspend fun currentLocation(context: Context, manager: LocationManager): Location? {
+        val providers = buildList {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) add(LocationManager.FUSED_PROVIDER)
+            add(LocationManager.NETWORK_PROVIDER)
+            add(LocationManager.GPS_PROVIDER)
+        }
+        val provider = providers.firstOrNull { runCatching { manager.isProviderEnabled(it) }.getOrDefault(false) }
+            ?: return null
+        if (!hasLocationPermission(context)) return null
+        return suspendCancellableCoroutine { continuation ->
+            val cancel = CancellationSignal()
+            continuation.invokeOnCancellation { cancel.cancel() }
+            try {
+                // The callback only resumes the coroutine, so it may run on the calling thread.
+                LocationManagerCompat.getCurrentLocation(manager, provider, cancel, Runnable::run) { location ->
+                    if (continuation.isActive) continuation.resume(location)
+                }
+            } catch (e: SecurityException) {
+                LogUtil.w(AppConfig.TAG, "LocationSpoof: location permission withdrawn during the probe", e)
+                if (continuation.isActive) continuation.resume(null)
+            }
+        }
     }
 
     /**

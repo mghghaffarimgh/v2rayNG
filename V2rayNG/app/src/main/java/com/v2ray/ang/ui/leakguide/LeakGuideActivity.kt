@@ -185,10 +185,10 @@ fun LeakGuideScreen(
                 onClick = { if (!state.checkRunning) onRunCheck() },
             )
             val intervalLabels = LeakCheckManager.INTERVAL_CHOICES.map { minutes ->
-                if (minutes == 0) {
-                    stringResource(R.string.leak_test_interval_off)
-                } else {
-                    stringResource(R.string.leak_test_interval_minutes, minutes)
+                when (minutes) {
+                    0 -> stringResource(R.string.leak_test_interval_off)
+                    LeakCheckPolicy.RANDOM_SCHEDULE -> stringResource(R.string.leak_test_interval_random)
+                    else -> stringResource(R.string.leak_test_interval_minutes, minutes)
                 }
             }
             SettingsListItem(

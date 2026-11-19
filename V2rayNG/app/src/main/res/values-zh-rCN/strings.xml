@@ -705,4 +705,24 @@
     <string name="vpn_share_failure_disallowed">本机的网络共享被运营商或设备策略禁止。</string>
     <string name="vpn_share_failure_unsupported">本机或此 Android 版本无法开启本地 Wi-Fi 网络（需要 Android 8 或更高版本）。</string>
     <string name="vpn_share_failure_generic">无法开启 Wi-Fi 网络。请开启 Wi-Fi 和位置后重试。</string>
+    <string name="title_leak_tester">IP 与位置泄漏测试</string>
+    <string name="leak_tester_intro">立即检查您的流量以哪个 IP 地址访问互联网，以及应用收到的是哪个位置，并告诉您其中是否有暴露真实值的情况。</string>
+    <string name="leak_tester_start">开始测试</string>
+    <string name="leak_tester_schedule_note">VPN 连接期间，IP 测试还会每小时在随机时间自动运行三次，发现泄漏时通知您。您可以在防泄漏指南中更改。</string>
+    <string name="leak_tester_ip_title">IP 地址</string>
+    <string name="leak_tester_ip_ok">没有 IP 泄漏：互联网看到的是 VPN 的地址。</string>
+    <string name="leak_tester_ip_warning">未发现 IP 泄漏，但部分测试未能完成。</string>
+    <string name="leak_tester_ip_leak">IP 泄漏：流量未经 VPN 访问互联网。</string>
+    <string name="leak_tester_exit_ip">通过 VPN 看到：%1$s（%2$s）</string>
+    <string name="leak_tester_exit_ip_unknown">无法测量通过 VPN 的地址。</string>
+    <string name="leak_tester_real_ip">您的真实地址：%1$s（%2$s）</string>
+    <string name="leak_tester_loc_title">位置</string>
+    <string name="leak_tester_loc_no_permission">未测试：请允许本应用获取位置，以查看其他应用收到的内容。</string>
+    <string name="leak_tester_loc_off">位置已关闭：应用无法获得任何位置。</string>
+    <string name="leak_tester_loc_no_fix">未能及时获得位置；请在户外或开启 Wi-Fi 后重试。</string>
+    <string name="leak_tester_loc_real_visible">拥有位置权限的应用能看到您的真实位置。VPN 隐藏的是 IP 而不是位置；开启虚拟位置即可更改。</string>
+    <string name="leak_tester_loc_virtual_not_applied">位置泄漏：虚拟位置已开启，但应用收到的位置离它很远，很可能是您的真实位置。</string>
+    <string name="leak_tester_loc_virtual_ok">应用收到的是虚拟位置。它被标记为模拟位置，应用可以检查这一点。</string>
+    <string name="leak_tester_loc_distance">与虚拟位置的距离：%1$s</string>
+    <string name="leak_test_interval_random">每小时 3 次，随机时间</string>
 </resources>

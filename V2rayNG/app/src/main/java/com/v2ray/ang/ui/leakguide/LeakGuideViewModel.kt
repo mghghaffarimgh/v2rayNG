@@ -39,7 +39,7 @@ data class LeakGuideState(
     val risks: List<LeakRiskPolicy.Risk> = emptyList(),
     val lockdown: LeakRiskPolicy.LockdownState = LeakRiskPolicy.LockdownState.UNKNOWN,
     val leakWarningsEnabled: Boolean = true,
-    val checkIntervalMinutes: Int = 5,
+    val checkIntervalMinutes: Int = LeakCheckPolicy.RANDOM_SCHEDULE,
     val checkRunning: Boolean = false,
     val lastVerdict: LeakCheckPolicy.Verdict? = null,
     val lastFindings: List<LeakCheckPolicy.Finding> = emptyList(),

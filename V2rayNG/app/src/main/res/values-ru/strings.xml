@@ -711,4 +711,24 @@
     <string name="vpn_share_failure_disallowed">Раздача на этом телефоне запрещена оператором или политикой устройства.</string>
     <string name="vpn_share_failure_unsupported">Этот телефон или версия Android не может открыть локальную сеть Wi-Fi (нужен Android 8 или новее).</string>
     <string name="vpn_share_failure_generic">Не удалось открыть сеть Wi-Fi. Включите Wi-Fi и геолокацию и повторите.</string>
+    <string name="title_leak_tester">Проверка утечки IP и местоположения</string>
+    <string name="leak_tester_intro">Прямо сейчас проверяет, с каким IP-адресом ваш трафик выходит в интернет и какое местоположение получают приложения, и сообщает, выдаёт ли что-то из этого настоящее значение.</string>
+    <string name="leak_tester_start">Начать проверку</string>
+    <string name="leak_tester_schedule_note">Пока VPN подключён, проверка IP также запускается сама три раза в час в случайное время и уведомляет при обнаружении утечки. Это можно изменить в руководстве по защите от утечек.</string>
+    <string name="leak_tester_ip_title">IP-адрес</string>
+    <string name="leak_tester_ip_ok">Утечки IP нет: интернет видит адрес VPN.</string>
+    <string name="leak_tester_ip_warning">Утечка не найдена, но часть проверки выполнить не удалось.</string>
+    <string name="leak_tester_ip_leak">Утечка IP: трафик выходит в интернет без VPN.</string>
+    <string name="leak_tester_exit_ip">Виден через VPN: %1$s (%2$s)</string>
+    <string name="leak_tester_exit_ip_unknown">Адрес через VPN измерить не удалось.</string>
+    <string name="leak_tester_real_ip">Ваш настоящий адрес: %1$s (%2$s)</string>
+    <string name="leak_tester_loc_title">Местоположение</string>
+    <string name="leak_tester_loc_no_permission">Не проверено: разрешите этому приложению доступ к местоположению, чтобы увидеть, что получают другие приложения.</string>
+    <string name="leak_tester_loc_off">Геолокация выключена: приложения не получают местоположение.</string>
+    <string name="leak_tester_loc_no_fix">Местоположение не пришло вовремя; повторите на улице или с включённым Wi-Fi.</string>
+    <string name="leak_tester_loc_real_visible">Приложения с доступом к геолокации видят ваше настоящее местоположение. VPN скрывает IP, а не местоположение; включите виртуальное местоположение, чтобы изменить его.</string>
+    <string name="leak_tester_loc_virtual_not_applied">Утечка местоположения: виртуальное местоположение включено, но приложения получают место далеко от него, скорее всего настоящее.</string>
+    <string name="leak_tester_loc_virtual_ok">Приложения получают виртуальное местоположение. Оно помечено как смоделированное, и приложения могут это проверить.</string>
+    <string name="leak_tester_loc_distance">Расстояние до виртуального места: %1$s</string>
+    <string name="leak_test_interval_random">3 раза в час, в случайное время</string>
 </resources>

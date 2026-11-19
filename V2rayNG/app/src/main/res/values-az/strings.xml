@@ -707,4 +707,24 @@
     <string name="vpn_share_failure_disallowed">Bu telefonda modem rejimi operator və ya cihaz siyasəti tərəfindən bloklanıb.</string>
     <string name="vpn_share_failure_unsupported">Bu telefon və ya Android versiyası yerli Wi-Fi şəbəkəsi aça bilmir (Android 8 və ya daha yenisi lazımdır).</string>
     <string name="vpn_share_failure_generic">Wi-Fi şəbəkəsi açıla bilmədi. Wi-Fi və məkanı açıb yenidən cəhd edin.</string>
+    <string name="title_leak_tester">IP və məkan sızma testi</string>
+    <string name="leak_tester_intro">Trafikinizin internetə hansı IP ünvanı ilə çıxdığını və tətbiqlərin hansı məkanı aldığını indi yoxlayır və onlardan hər hansı birinin real dəyəri aşkar edib-etmədiyini bildirir.</string>
+    <string name="leak_tester_start">Testi başlat</string>
+    <string name="leak_tester_schedule_note">VPN qoşulu olduqca IP testi saatda üç dəfə təsadüfi vaxtlarda özü də işləyir və sızma tapsa bildiriş göndərir. Bunu sızma qorunması bələdçisində dəyişə bilərsiniz.</string>
+    <string name="leak_tester_ip_title">IP ünvanı</string>
+    <string name="leak_tester_ip_ok">IP sızması yoxdur: internet VPN ünvanını görür.</string>
+    <string name="leak_tester_ip_warning">IP sızması tapılmadı, amma testin bir hissəsi tamamlanmadı.</string>
+    <string name="leak_tester_ip_leak">IP sızması: trafik internetə VPN-siz çıxır.</string>
+    <string name="leak_tester_exit_ip">VPN ilə görünən: %1$s (%2$s)</string>
+    <string name="leak_tester_exit_ip_unknown">VPN üzərindən ünvan ölçülə bilmədi.</string>
+    <string name="leak_tester_real_ip">Real ünvanınız: %1$s (%2$s)</string>
+    <string name="leak_tester_loc_title">Məkan</string>
+    <string name="leak_tester_loc_no_permission">Yoxlanmadı: digər tətbiqlərin nə aldığını görmək üçün bu tətbiqə məkan icazəsi verin.</string>
+    <string name="leak_tester_loc_off">Məkan bağlıdır: tətbiqlər heç bir məkan almır.</string>
+    <string name="leak_tester_loc_no_fix">Məkan vaxtında gəlmədi; açıq havada və ya Wi-Fi açıq ikən yenidən cəhd edin.</string>
+    <string name="leak_tester_loc_real_visible">Məkan icazəsi olan tətbiqlər real məkanınızı görür. VPN IP-ni gizlədir, məkanı yox; dəyişmək üçün virtual məkanı açın.</string>
+    <string name="leak_tester_loc_virtual_not_applied">Məkan sızması: virtual məkan açıqdır, amma tətbiqlər ondan uzaq bir məkan alır, çox güman ki, real məkanınızı.</string>
+    <string name="leak_tester_loc_virtual_ok">Tətbiqlər virtual məkanı alır. O, simulyasiya kimi işarələnib və tətbiqlər bunu yoxlaya bilər.</string>
+    <string name="leak_tester_loc_distance">Virtual məkandan məsafə: %1$s</string>
+    <string name="leak_test_interval_random">Saatda 3 dəfə, təsadüfi vaxtlarda</string>
 </resources>

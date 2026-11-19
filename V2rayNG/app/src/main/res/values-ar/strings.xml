@@ -715,4 +715,24 @@
     <string name="vpn_share_failure_disallowed">الربط محظور على هذا الهاتف من المشغّل أو من سياسة الجهاز.</string>
     <string name="vpn_share_failure_unsupported">لا يستطيع هذا الهاتف أو إصدار أندرويد فتح شبكة Wi-Fi محلية (يلزم أندرويد 8 أو أحدث).</string>
     <string name="vpn_share_failure_generic">تعذّر فتح شبكة Wi-Fi. فعّل Wi-Fi والموقع ثم حاول مجددًا.</string>
+    <string name="title_leak_tester">اختبار تسرّب IP والموقع</string>
+    <string name="leak_tester_intro">يفحص الآن عنوان IP الذي تصل به حركة مرورك إلى الإنترنت والموقع الذي تتلقاه التطبيقات، ويخبرك إن كان أيّ منهما يكشف القيمة الحقيقية.</string>
+    <string name="leak_tester_start">ابدأ الاختبار</string>
+    <string name="leak_tester_schedule_note">أثناء اتصال VPN يعمل اختبار IP تلقائيًا ثلاث مرات في الساعة في أوقات عشوائية وينبّهك عند اكتشاف تسرّب. يمكنك تغيير ذلك في دليل الحماية من التسرّب.</string>
+    <string name="leak_tester_ip_title">عنوان IP</string>
+    <string name="leak_tester_ip_ok">لا تسرّب لعنوان IP: الإنترنت يرى عنوان VPN.</string>
+    <string name="leak_tester_ip_warning">لم يُعثر على تسرّب، لكن تعذّر إكمال جزء من الاختبار.</string>
+    <string name="leak_tester_ip_leak">تسرّب IP: حركة المرور تصل إلى الإنترنت دون VPN.</string>
+    <string name="leak_tester_exit_ip">المرئي عبر VPN: %1$s (%2$s)</string>
+    <string name="leak_tester_exit_ip_unknown">تعذّر قياس العنوان عبر VPN.</string>
+    <string name="leak_tester_real_ip">عنوانك الحقيقي: %1$s (%2$s)</string>
+    <string name="leak_tester_loc_title">الموقع</string>
+    <string name="leak_tester_loc_no_permission">لم يُختبر: اسمح بالموقع لهذا التطبيق ليرى ما تتلقاه التطبيقات الأخرى.</string>
+    <string name="leak_tester_loc_off">الموقع معطّل: لا تحصل التطبيقات على أي موقع.</string>
+    <string name="leak_tester_loc_no_fix">لم يصل موقع في الوقت المحدد؛ حاول مجددًا في مكان مفتوح أو مع تشغيل Wi-Fi.</string>
+    <string name="leak_tester_loc_real_visible">التطبيقات التي لديها إذن الموقع ترى موقعك الحقيقي. يخفي VPN عنوان IP وليس موقعك؛ فعّل الموقع الافتراضي لتغييره.</string>
+    <string name="leak_tester_loc_virtual_not_applied">تسرّب الموقع: الموقع الافتراضي مفعّل، لكن التطبيقات تتلقى موقعًا بعيدًا عنه، غالبًا موقعك الحقيقي.</string>
+    <string name="leak_tester_loc_virtual_ok">تتلقى التطبيقات الموقع الافتراضي. وهو موسوم بأنه محاكى، ويمكن للتطبيقات التحقق من ذلك.</string>
+    <string name="leak_tester_loc_distance">المسافة عن الموقع الافتراضي: %1$s</string>
+    <string name="leak_test_interval_random">3 مرات في الساعة، في أوقات عشوائية</string>
 </resources>

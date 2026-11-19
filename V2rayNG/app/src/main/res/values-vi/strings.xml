@@ -705,4 +705,24 @@
     <string name="vpn_share_failure_disallowed">Chia sẻ kết nối bị nhà mạng hoặc chính sách thiết bị chặn trên điện thoại này.</string>
     <string name="vpn_share_failure_unsupported">Điện thoại hoặc phiên bản Android này không thể mở mạng Wi-Fi cục bộ (cần Android 8 trở lên).</string>
     <string name="vpn_share_failure_generic">Không mở được mạng Wi-Fi. Bật Wi-Fi và vị trí rồi thử lại.</string>
+    <string name="title_leak_tester">Kiểm tra rò rỉ IP và vị trí</string>
+    <string name="leak_tester_intro">Kiểm tra ngay địa chỉ IP mà lưu lượng của bạn dùng để ra internet và vị trí mà ứng dụng nhận được, rồi cho biết có cái nào để lộ giá trị thật không.</string>
+    <string name="leak_tester_start">Bắt đầu kiểm tra</string>
+    <string name="leak_tester_schedule_note">Khi VPN đang kết nối, kiểm tra IP cũng tự chạy ba lần mỗi giờ vào thời điểm ngẫu nhiên và thông báo khi phát hiện rò rỉ. Bạn có thể thay đổi trong hướng dẫn chống rò rỉ.</string>
+    <string name="leak_tester_ip_title">Địa chỉ IP</string>
+    <string name="leak_tester_ip_ok">Không rò rỉ IP: internet thấy địa chỉ của VPN.</string>
+    <string name="leak_tester_ip_warning">Không thấy rò rỉ IP, nhưng một phần kiểm tra chưa hoàn tất.</string>
+    <string name="leak_tester_ip_leak">Rò rỉ IP: lưu lượng ra internet mà không qua VPN.</string>
+    <string name="leak_tester_exit_ip">Thấy qua VPN: %1$s (%2$s)</string>
+    <string name="leak_tester_exit_ip_unknown">Không đo được địa chỉ qua VPN.</string>
+    <string name="leak_tester_real_ip">Địa chỉ thật của bạn: %1$s (%2$s)</string>
+    <string name="leak_tester_loc_title">Vị trí</string>
+    <string name="leak_tester_loc_no_permission">Chưa kiểm tra: hãy cấp quyền vị trí cho ứng dụng này để xem ứng dụng khác nhận được gì.</string>
+    <string name="leak_tester_loc_off">Vị trí đang tắt: ứng dụng không nhận được vị trí nào.</string>
+    <string name="leak_tester_loc_no_fix">Không nhận được vị trí kịp thời; thử lại ngoài trời hoặc khi bật Wi-Fi.</string>
+    <string name="leak_tester_loc_real_visible">Ứng dụng có quyền vị trí thấy vị trí thật của bạn. VPN ẩn IP chứ không ẩn vị trí; hãy bật Vị trí ảo để thay đổi.</string>
+    <string name="leak_tester_loc_virtual_not_applied">Rò rỉ vị trí: Vị trí ảo đang bật nhưng ứng dụng nhận vị trí ở xa nó, rất có thể là vị trí thật của bạn.</string>
+    <string name="leak_tester_loc_virtual_ok">Ứng dụng nhận vị trí ảo. Vị trí này được đánh dấu là giả lập và ứng dụng có thể kiểm tra điều đó.</string>
+    <string name="leak_tester_loc_distance">Khoảng cách tới vị trí ảo: %1$s</string>
+    <string name="leak_test_interval_random">3 lần mỗi giờ, vào thời điểm ngẫu nhiên</string>
 </resources>

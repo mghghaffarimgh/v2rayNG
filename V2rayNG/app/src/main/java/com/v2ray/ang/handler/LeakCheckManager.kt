@@ -68,9 +68,12 @@ object LeakCheckManager {
     /** Interface name prefixes Android uses for hotspot, USB, Ethernet-gadget and Bluetooth tethering. */
     private val TETHER_PREFIXES = listOf("ap", "swlan", "softap", "rndis", "ncm", "bt-pan")
 
-    /** Interval values offered in the guide, in minutes; 0 turns checks off. */
-    val INTERVAL_CHOICES = listOf(0, 1, 5, 15, 30)
-    private const val DEFAULT_INTERVAL_MINUTES = 5
+    /**
+     * Interval values offered in the guide, in minutes; 0 turns checks off and
+     * [LeakCheckPolicy.RANDOM_SCHEDULE] runs three checks per hour at random moments.
+     */
+    val INTERVAL_CHOICES = listOf(LeakCheckPolicy.RANDOM_SCHEDULE, 0, 1, 5, 15, 30)
+    private const val DEFAULT_INTERVAL_MINUTES = LeakCheckPolicy.RANDOM_SCHEDULE
 
     private val directCache = ConcurrentHashMap<String, Pair<Long, ProbeResult>>()
 
@@ -114,6 +117,19 @@ object LeakCheckManager {
     }
 
     /**
+     * A check's result with what the test service saw, for showing to the user.
+     *
+     * @property evaluation The findings and verdict.
+     * @property tunnel What was seen through the tunnel, null when not probed.
+     * @property direct What was seen outside the tunnel, null when not probed.
+     */
+    data class Report(
+        val evaluation: Evaluation,
+        val tunnel: ProbeResult?,
+        val direct: ProbeResult?,
+    )
+
+    /**
      * Runs one check, logs it when [LeakCheckPolicy.shouldLog] says so, and notifies on a new leak.
      *
      * @param context Any context.
@@ -122,6 +138,17 @@ object LeakCheckManager {
      * @return The evaluation.
      */
     suspend fun runCheck(context: Context, trigger: Trigger, serviceState: ServiceState?): Evaluation =
+        runCheckDetailed(context, trigger, serviceState).evaluation
+
+    /**
+     * Runs one check like [runCheck] and also returns what the test service saw.
+     *
+     * @param context Any context.
+     * @param trigger What started the check.
+     * @param serviceState What the VPN service knows, or null outside the service.
+     * @return The report.
+     */
+    suspend fun runCheckDetailed(context: Context, trigger: Trigger, serviceState: ServiceState?): Report =
         withContext(Dispatchers.IO) {
             val app = context.applicationContext
             val snapshot = takeSnapshot(app, trigger, serviceState)
@@ -150,8 +177,39 @@ object LeakCheckManager {
             MmkvManager.encodeSettings(AppConfig.PREF_LEAK_LAST_NOTIFIED, signature)
 
             LogUtil.i(AppConfig.TAG, "LeakCheck: trigger=$trigger verdict=${evaluation.verdict} findings=${evaluation.findings}")
-            evaluation
+            Report(evaluation, snapshot.tunnel, snapshot.direct)
         }
+
+    /**
+     * Writes a location leak test to the leak log.
+     *
+     * Only the finding and a rounded distance are written, never coordinates, so the log stays
+     * safe to share.
+     *
+     * @param context Any context.
+     * @param result The location test result.
+     * @param consistency What still contradicts the virtual position, when it is on.
+     */
+    fun logLocationTest(
+        context: Context,
+        result: LocationLeakPolicy.Result,
+        consistency: List<LocationSpoofPolicy.Finding>,
+    ) {
+        val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.US).apply { timeZone = TimeZone.getDefault() }
+        val entry = linkedMapOf(
+            "ts" to format.format(Date()),
+            "trigger" to "LOCATION_TEST",
+            "verdict" to result.verdict.name,
+            "finding" to result.finding.name,
+            "distanceToVirtual" to LocationLeakPolicy.distanceBucket(result.distanceToTargetM),
+            "spoofEnabled" to LocationSpoofManager.isEnabled(),
+            "consistency" to consistency.map { it.name },
+            "vpnExitCountry" to getLastExitCountry(),
+            "app" to BuildConfig.VERSION_NAME,
+            "sdk" to Build.VERSION.SDK_INT,
+        )
+        LeakLog.append(context.applicationContext, JsonUtil.toJson(entry))
+    }
 
     /** The country of the newest measured VPN exit address, or null when none was measured. */
     fun getLastExitCountry(): String? = MmkvManager.decodeSettingsString(AppConfig.PREF_LEAK_LAST_EXIT_COUNTRY)

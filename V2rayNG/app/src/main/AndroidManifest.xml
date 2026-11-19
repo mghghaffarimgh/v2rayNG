@@ -48,13 +48,11 @@
         android:name="android.permission.NEARBY_WIFI_DEVICES"
         android:usesPermissionFlags="neverForLocation"
         tools:targetApi="33" />
-    <uses-permission
-        android:name="android.permission.ACCESS_FINE_LOCATION"
-        android:maxSdkVersion="32" />
-    <!-- Android 12 ignores a precise location request that does not also ask for approximate. -->
-    <uses-permission
-        android:name="android.permission.ACCESS_COARSE_LOCATION"
-        android:maxSdkVersion="32" />
+    <!-- Location: the hotspot up to Android 12, and the location leak test on every version,
+         which reads the position the way other apps do. Asked for only when the user starts
+         either feature. Android 12+ ignores a precise request without the approximate one. -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <!-- Lists the app in Developer options > "Select mock location app"; the virtual location
          feature works only after the user selects it there. -->
     <uses-permission
@@ -152,6 +150,9 @@
             android:exported="false" />
         <activity
             android:name=".ui.leakguide.LeakGuideActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.leaktest.LeakTestActivity"
             android:exported="false" />
         <activity
             android:name=".ui.share.VpnShareActivity"

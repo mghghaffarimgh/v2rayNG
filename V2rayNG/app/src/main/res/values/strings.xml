@@ -708,4 +708,24 @@
     <string name="vpn_share_failure_disallowed">Tethering is blocked on this phone by the carrier or a device policy.</string>
     <string name="vpn_share_failure_unsupported">This phone or Android version cannot open a local Wi-Fi network (Android 8 or newer is needed).</string>
     <string name="vpn_share_failure_generic">The Wi-Fi network could not be opened. Turn Wi-Fi and location on, then try again.</string>
+    <string name="title_leak_tester">IP &amp; location leak test</string>
+    <string name="leak_tester_intro">Checks, right now, which IP address your traffic reaches the internet with and which position apps receive, and tells you whether either one gives away the real one.</string>
+    <string name="leak_tester_start">Start the test</string>
+    <string name="leak_tester_schedule_note">While the VPN is connected, the IP test also runs on its own three times per hour at random moments and notifies you when it finds a leak. You can change this in the leak protection guide.</string>
+    <string name="leak_tester_ip_title">IP address</string>
+    <string name="leak_tester_ip_ok">No IP leak: the internet sees the VPN\'s address.</string>
+    <string name="leak_tester_ip_warning">No IP leak found, but part of the test could not be completed.</string>
+    <string name="leak_tester_ip_leak">IP leak: traffic reaches the internet without the VPN.</string>
+    <string name="leak_tester_exit_ip">Seen through the VPN: %1$s (%2$s)</string>
+    <string name="leak_tester_exit_ip_unknown">The address through the VPN could not be measured.</string>
+    <string name="leak_tester_real_ip">Your real address: %1$s (%2$s)</string>
+    <string name="leak_tester_loc_title">Location</string>
+    <string name="leak_tester_loc_no_permission">Not tested: allow location for this app to see what other apps receive.</string>
+    <string name="leak_tester_loc_off">Location is off: apps get no position at all.</string>
+    <string name="leak_tester_loc_no_fix">No position arrived in time; try again outdoors or with Wi-Fi on.</string>
+    <string name="leak_tester_loc_real_visible">Apps with location permission see your real position. The VPN hides your IP, not your position; turn on Virtual location to change it.</string>
+    <string name="leak_tester_loc_virtual_not_applied">Location leak: Virtual location is on, but apps receive a position far from it, most likely your real one.</string>
+    <string name="leak_tester_loc_virtual_ok">Apps receive the virtual position. It is marked as simulated, which apps can check.</string>
+    <string name="leak_tester_loc_distance">Distance from the virtual position: %1$s</string>
+    <string name="leak_test_interval_random">3 times per hour, at random times</string>
 </resources>
