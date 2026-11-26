@@ -734,4 +734,17 @@
     <string name="main_chip_leak_paths">লিকের পথ: %1$d</string>
     <string name="toast_kill_switch_on">কিল সুইচ চালু হয়েছে</string>
     <string name="toast_kill_switch_off">কিল সুইচ বন্ধ হয়েছে</string>
+    <string name="routine_action_label">আপডেট, পরীক্ষা ও সেরা সার্ভারে সংযোগ</string>
+    <string name="routine_busy">সাবস্ক্রিপশন রুটিন ইতিমধ্যে চলছে।</string>
+    <string name="routine_step_update">ধাপ ১/৪: সাবস্ক্রিপশন আপডেট হচ্ছে…</string>
+    <string name="routine_step_test">ধাপ ২/৪: সব সার্ভার পরীক্ষা হচ্ছে…</string>
+    <string name="routine_step_connect">ধাপ ৩/৪: সেরা সার্ভারে সংযোগ হচ্ছে…</string>
+    <string name="routine_step_verify">ধাপ ৪/৪: VPN দিয়ে YouTube পরীক্ষা হচ্ছে…</string>
+    <string name="routine_result_title_ok">YouTube পরীক্ষা: ঠিক আছে</string>
+    <string name="routine_result_title_failed">সংযোগ ব্যর্থ</string>
+    <string name="routine_result_ok">VPN সংযুক্ত এবং এর মাধ্যমে YouTube খুলেছে।\nসার্ভার: %1$s</string>
+    <string name="routine_result_no_servers">সাবস্ক্রিপশনে কোনো সার্ভার নেই। লিংক দেখে আবার চেষ্টা করুন।</string>
+    <string name="routine_result_no_reachable">সাবস্ক্রিপশনের কোনো সার্ভার পরীক্ষায় সাড়া দেয়নি।</string>
+    <string name="routine_result_connect_failed">বাছাই করা সার্ভারে VPN চালু হয়নি।\nসার্ভার: %1$s</string>
+    <string name="routine_result_youtube_failed">VPN দিয়ে YouTube খোলেনি।\nসার্ভার: %1$s\nঅন্য সার্ভার চেষ্টা করুন বা আবার সাবস্ক্রিপশনে দুবার ট্যাপ করুন।</string>
 </resources>

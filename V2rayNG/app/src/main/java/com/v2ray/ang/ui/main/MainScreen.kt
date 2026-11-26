@@ -128,7 +128,9 @@ fun MainScreen(
         onConfirmDelInvalid = { showDelInvalidConfirm = false; onAction(MainAction.RemoveInvalidServers) },
         showRemoveConfirm = showRemoveConfirm,
         onDismissRemove = { showRemoveConfirm = null },
-        onConfirmRemove = { guid -> showRemoveConfirm = null; onAction(MainAction.RemoveServer(guid)) }
+        onConfirmRemove = { guid -> showRemoveConfirm = null; onAction(MainAction.RemoveServer(guid)) },
+        routineResult = uiState.routine as? RoutineState.Finished,
+        onDismissRoutineResult = { onAction(MainAction.DismissRoutineResult) }
     )
 
     if (shareTarget != null) {
@@ -223,7 +225,8 @@ fun MainScreen(
                                         animateAdjacentPage = true
                                     )
                                 }
-                            }
+                            },
+                            onTabDoubleClick = { groupId -> onAction(MainAction.RunSubscriptionRoutine(groupId)) }
                         )
                     }
 

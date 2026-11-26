@@ -739,4 +739,17 @@
     <string name="main_chip_leak_paths">Путей утечки: %1$d</string>
     <string name="toast_kill_switch_on">Kill switch включён</string>
     <string name="toast_kill_switch_off">Kill switch выключен</string>
+    <string name="routine_action_label">Обновить, проверить и подключиться к лучшему серверу</string>
+    <string name="routine_busy">Процедура подписки уже выполняется.</string>
+    <string name="routine_step_update">Шаг 1/4: обновление подписки…</string>
+    <string name="routine_step_test">Шаг 2/4: проверка всех серверов…</string>
+    <string name="routine_step_connect">Шаг 3/4: подключение к лучшему серверу…</string>
+    <string name="routine_step_verify">Шаг 4/4: проверка YouTube через VPN…</string>
+    <string name="routine_result_title_ok">YouTube проверен: OK</string>
+    <string name="routine_result_title_failed">Подключение не удалось</string>
+    <string name="routine_result_ok">VPN подключён, YouTube открылся через него.\nСервер: %1$s</string>
+    <string name="routine_result_no_servers">Подписка не дала серверов. Проверьте ссылку и повторите.</string>
+    <string name="routine_result_no_reachable">Ни один сервер подписки не ответил на проверку.</string>
+    <string name="routine_result_connect_failed">VPN не запустился с выбранным сервером.\nСервер: %1$s</string>
+    <string name="routine_result_youtube_failed">YouTube не открылся через VPN.\nСервер: %1$s\nПопробуйте другой сервер или снова дважды нажмите на подписку.</string>
 </resources>

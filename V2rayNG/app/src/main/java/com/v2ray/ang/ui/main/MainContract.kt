@@ -11,6 +11,7 @@ sealed interface MainStatus {
     data object Testing : MainStatus
     data class TestProgress(val progress: String) : MainStatus
     data class ConnectionTest(val result: ConnectionTestResult) : MainStatus
+    data class Routine(val step: RoutineStep) : MainStatus
 }
 
 /**
@@ -27,7 +28,11 @@ data class MainUiState(
     val confirmRemove: Boolean = false,
     val doubleColumnDisplay: Boolean = false,
     val shareQRCodeBitmap: android.graphics.Bitmap? = null,
-    val protection: ProtectionState = ProtectionState()
+    val protection: ProtectionState = ProtectionState(),
+    /** The subscription routine's progress or verdict; null when none ran or it was dismissed. */
+    val routine: RoutineState? = null,
+    /** Set while the routine waits for the activity to (re)start the VPN with the chosen server. */
+    val routineConnectRequested: Boolean = false,
 )
 
 /**
@@ -94,4 +99,9 @@ sealed interface MainAction {
     data object RefreshProtection : MainAction
     data class SetKillSwitch(val enabled: Boolean) : MainAction
     data class SetVirtualLocation(val enabled: Boolean) : MainAction
+
+    /** Double-tap on a group: update it, test it, connect to the best server, check YouTube. */
+    data class RunSubscriptionRoutine(val groupId: String) : MainAction
+    data object RoutineConnectHandled : MainAction
+    data object DismissRoutineResult : MainAction
 }

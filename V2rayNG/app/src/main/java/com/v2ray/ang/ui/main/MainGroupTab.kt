@@ -3,6 +3,7 @@ package com.v2ray.ang.ui.main
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,7 +18,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -38,7 +38,13 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
+import com.v2ray.ang.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
@@ -69,6 +75,7 @@ fun GroupTabBar(
     selectedTabIndex: Int,
     mainViewModel: MainViewModel,
     onTabClick: (Int) -> Unit,
+    onTabDoubleClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val selectedIndex = selectedTabIndex.coerceIn(0, groups.lastIndex)
@@ -103,7 +110,8 @@ fun GroupTabBar(
                                 group = group,
                                 selected = index == selectedIndex,
                                 serverFlow = serverFlow,
-                                onClick = { onTabClick(index) }
+                                onClick = { onTabClick(index) },
+                                onDoubleClick = { onTabDoubleClick(group.id) }
                             )
                         }
                     }
@@ -162,7 +170,8 @@ private fun GroupTabItem(
     group: GroupMapItem,
     selected: Boolean,
     serverFlow: StateFlow<List<ServersCache>>,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onDoubleClick: () -> Unit
 ) {
     val servers by serverFlow.collectAsStateWithLifecycle()
     // The default group (empty id) never showed a count.
@@ -182,14 +191,21 @@ private fun GroupTabItem(
         }
     }
 
-    // One selectable node: name, count and selected state are announced together.
+    // One selectable node: name, count and selected state are announced together. The double
+    // tap (the subscription routine) is also offered as a named accessibility action, so TalkBack
+    // and switch users reach it without a gesture.
+    val routineLabel = stringResource(R.string.routine_action_label)
     Row(
         modifier = Modifier
             .bringIntoViewRequester(bringIntoView)
             .onSizeChanged { size = it }
             .clip(CircleShape)
             .background(if (selected) colors.primary.copy(alpha = 0.12f) else Color.Transparent)
-            .selectable(selected = selected, role = Role.Tab, onClick = onClick)
+            .combinedClickable(role = Role.Tab, onClick = onClick, onDoubleClick = onDoubleClick)
+            .semantics {
+                this.selected = selected
+                customActions = listOf(CustomAccessibilityAction(routineLabel) { onDoubleClick(); true })
+            }
             .padding(horizontal = 12.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically

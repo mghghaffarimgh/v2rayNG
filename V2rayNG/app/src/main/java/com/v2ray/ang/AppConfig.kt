@@ -302,6 +302,9 @@ object AppConfig {
 
     const val UNIDENTIFIED_PACKAGE = "__unknown_app__"
 
+    /** Filtered in Iran: answering 204 through the VPN shows the VPN carries traffic. */
+    const val ROUTINE_YOUTUBE_PROBE_URL = "https://www.youtube.com/generate_204"
+
     val DNS_ALIDNS_ADDRESSES = arrayListOf("223.5.5.5", "223.6.6.6", "2400:3200::1", "2400:3200:baba::1")
     val DNS_CISCO_SSE_ADDRESSES = arrayListOf("208.67.220.220", "208.67.222.222", "2620:119:35::35", "2620:119:53::53")
     val DNS_CISCO_UMBRELLA_ADDRESSES = arrayListOf("208.67.220.220", "208.67.222.222", "2620:119:35::35", "2620:119:53::53")

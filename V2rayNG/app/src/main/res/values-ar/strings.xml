@@ -743,4 +743,17 @@
     <string name="main_chip_leak_paths">طرق التسرّب: %1$d</string>
     <string name="toast_kill_switch_on">تم تفعيل مفتاح الإيقاف</string>
     <string name="toast_kill_switch_off">تم إيقاف مفتاح الإيقاف</string>
+    <string name="routine_action_label">تحديث واختبار والاتصال بأفضل خادم</string>
+    <string name="routine_busy">روتين الاشتراك قيد التشغيل بالفعل.</string>
+    <string name="routine_step_update">الروتين 1/4: تحديث الاشتراك…</string>
+    <string name="routine_step_test">الروتين 2/4: اختبار كل الخوادم…</string>
+    <string name="routine_step_connect">الروتين 3/4: الاتصال بأفضل خادم…</string>
+    <string name="routine_step_verify">الروتين 4/4: اختبار يوتيوب عبر VPN…</string>
+    <string name="routine_result_title_ok">تم اختبار يوتيوب: يعمل</string>
+    <string name="routine_result_title_failed">فشل الاتصال</string>
+    <string name="routine_result_ok">VPN متصل وفُتح يوتيوب عبره.\nالخادم: %1$s</string>
+    <string name="routine_result_no_servers">لم يجلب الاشتراك أي خادم. تحقق من الرابط وحاول مجددًا.</string>
+    <string name="routine_result_no_reachable">لم يستجب أي خادم في الاشتراك للاختبار.</string>
+    <string name="routine_result_connect_failed">لم يبدأ VPN بالخادم المختار.\nالخادم: %1$s</string>
+    <string name="routine_result_youtube_failed">لم يُفتح يوتيوب عبر VPN.\nالخادم: %1$s\nجرّب خادمًا آخر أو انقر مرتين على الاشتراك مجددًا.</string>
 </resources>

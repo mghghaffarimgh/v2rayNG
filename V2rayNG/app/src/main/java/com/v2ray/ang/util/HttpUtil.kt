@@ -103,6 +103,26 @@ object HttpUtil {
 
 
     /**
+     * The HTTP status a GET of [url] gets through this app's local HTTP proxy, or null when the
+     * request failed. Used to check that the VPN really carries traffic.
+     */
+    fun probeStatusThroughProxy(
+        url: String,
+        timeout: Int,
+        httpPort: Int,
+        proxyUsername: String?,
+        proxyPassword: String?
+    ): Int? {
+        val client = buildOkHttpClient(timeout, httpPort, proxyUsername, proxyPassword, followRedirects = false)
+        return try {
+            client.newCall(Request.Builder().url(url).get().header("Connection", "close").build()).execute().use { it.code }
+        } catch (e: Exception) {
+            LogUtil.w(AppConfig.TAG, "Probe through the local proxy failed: ${e.javaClass.simpleName}")
+            null
+        }
+    }
+
+    /**
      * Retrieves the content of a URL as a string.
      *
      * @param url The URL to fetch content from.

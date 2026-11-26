@@ -47,6 +47,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
+import com.v2ray.ang.util.HttpUtil
 import java.util.concurrent.ConcurrentHashMap
 import java.util.regex.PatternSyntaxException
 
@@ -119,6 +121,11 @@ class MainViewModel(
 
     private val initialPageReady = CompletableDeferred<Unit>()
 
+    // ---------- Subscription routine ----------
+    private var routineJob: Job? = null
+    private var routineTestsDone: CompletableDeferred<Unit>? = null
+    private var routineServiceStarted: CompletableDeferred<Boolean>? = null
+
     // ---------- Service events ----------
     init {
         collectServiceEvents()
@@ -140,9 +147,11 @@ class MainViewModel(
             MainServiceEvent.StateStartSuccess -> {
                 toastSuccess(R.string.toast_services_success)
                 updateRunningState(true)
+                routineServiceStarted?.complete(true)
             }
 
             is MainServiceEvent.StateStartFailure -> {
+                routineServiceStarted?.complete(false)
                 if (!event.message.isNullOrBlank()) {
                     toastError(event.message)
                 } else {
@@ -236,6 +245,14 @@ class MainViewModel(
         )
 
         is MainStatus.ConnectionTest -> formatConnectionTestResult(status.result)
+        is MainStatus.Routine -> dataSource.getString(
+            when (status.step) {
+                RoutineStep.Update -> R.string.routine_step_update
+                RoutineStep.Test -> R.string.routine_step_test
+                RoutineStep.Connect -> R.string.routine_step_connect
+                RoutineStep.Verify -> R.string.routine_step_verify
+            }
+        )
     }
 
     private fun formatConnectionTestResult(result: ConnectionTestResult): String {
@@ -303,6 +320,9 @@ class MainViewModel(
             MainAction.RefreshProtection -> refreshProtection()
             is MainAction.SetKillSwitch -> setKillSwitch(action.enabled)
             is MainAction.SetVirtualLocation -> setVirtualLocation(action.enabled)
+            is MainAction.RunSubscriptionRoutine -> runSubscriptionRoutine(action.groupId)
+            MainAction.RoutineConnectHandled -> _uiState.update { it.copy(routineConnectRequested = false) }
+            MainAction.DismissRoutineResult -> _uiState.update { it.copy(routine = null) }
             is MainAction.ShareQRCode -> {
                 val bitmap = dataSource.share2QRCode(action.guid)
                 _uiState.update { it.copy(shareQRCodeBitmap = bitmap) }
@@ -327,6 +347,101 @@ class MainViewModel(
                 // Handled by Activity via its onAction lambda
             }
         }
+    }
+
+    // ---------- Subscription routine ----------
+
+    /**
+     * Updates the group's subscription (the updater tries the local proxy and a direct
+     * connection), tests every server in it, selects the fastest, has the activity (re)start the
+     * VPN with it, then opens YouTube, filtered in Iran, through the local proxy. The verdict
+     * stays in [MainUiState.routine] until dismissed. One run at a time.
+     */
+    private fun runSubscriptionRoutine(groupId: String) {
+        if (routineJob?.isActive == true) {
+            toast(R.string.routine_busy)
+            return
+        }
+        routineJob = viewModelScope.launch {
+            try {
+                subscriptionIdChanged(groupId)
+                setRoutineStep(groupId, RoutineStep.Update)
+                withContext(ioDispatcher) {
+                    dataSource.getSubscriptionItem(groupId)?.let { item ->
+                        dataSource.updateConfigViaSub(SubscriptionCache(groupId, item))
+                    }
+                }
+                setupGroupTab(forceRefresh = true).join()
+                if (_uiState.value.selectedGroupId != groupId) subscriptionIdChanged(groupId)
+                selectedGroupLoadJob?.join()
+
+                if (currentServers().isEmpty()) {
+                    finishRoutine(null, RoutineFailure.NoServers)
+                    return@launch
+                }
+                setRoutineStep(groupId, RoutineStep.Test)
+                val testsDone = CompletableDeferred<Unit>().also { routineTestsDone = it }
+                testAllRealPing()
+                withTimeoutOrNull(ROUTINE_TEST_TIMEOUT_MS) { testsDone.await() }
+
+                val best = MainSubscriptionRoutine.pickBest(mutableServerGroupState(groupId).value.servers)
+                if (best == null) {
+                    finishRoutine(null, RoutineFailure.NoReachableServer)
+                    return@launch
+                }
+                updateSelectedGuid(best.guid)
+
+                setRoutineStep(groupId, RoutineStep.Connect)
+                val started = CompletableDeferred<Boolean>().also { routineServiceStarted = it }
+                _uiState.update { it.copy(routineConnectRequested = true) }
+                if (withTimeoutOrNull(ROUTINE_CONNECT_TIMEOUT_MS) { started.await() } != true) {
+                    finishRoutine(best.profile.remarks, RoutineFailure.ConnectFailed)
+                    return@launch
+                }
+
+                setRoutineStep(groupId, RoutineStep.Verify)
+                val reachable = withContext(ioDispatcher) { youtubeThroughProxy() }
+                finishRoutine(best.profile.remarks, if (reachable) null else RoutineFailure.YoutubeFailed)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (e: Exception) {
+                LogUtil.e(AppConfig.TAG, "Subscription routine failed", e)
+                finishRoutine(null, RoutineFailure.ConnectFailed)
+            } finally {
+                routineTestsDone = null
+                routineServiceStarted = null
+            }
+        }
+    }
+
+    private fun setRoutineStep(groupId: String, step: RoutineStep) {
+        _uiState.update { it.copy(routine = RoutineState.Running(groupId, step), status = MainStatus.Routine(step)) }
+    }
+
+    private fun finishRoutine(serverName: String?, failure: RoutineFailure?) {
+        _uiState.update {
+            it.copy(
+                routine = RoutineState.Finished(serverName, failure),
+                routineConnectRequested = false,
+                status = if (it.isRunning) MainStatus.Connected else MainStatus.Disconnected
+            )
+        }
+    }
+
+    /** A few tries: the core takes a moment after the VPN starts to reach its server. */
+    private suspend fun youtubeThroughProxy(): Boolean {
+        repeat(ROUTINE_PROBE_ATTEMPTS) { attempt ->
+            if (attempt > 0) kotlinx.coroutines.delay(ROUTINE_PROBE_INTERVAL_MS)
+            val code = HttpUtil.probeStatusThroughProxy(
+                AppConfig.ROUTINE_YOUTUBE_PROBE_URL,
+                ROUTINE_PROBE_TIMEOUT_MS,
+                SettingsManager.getHttpPort(),
+                SettingsManager.getSocksUsername(),
+                SettingsManager.getSocksPassword()
+            )
+            if (MainSubscriptionRoutine.isYoutubeReachable(code)) return true
+        }
+        return false
     }
 
     // ---------- Initialization ----------
@@ -965,6 +1080,7 @@ class MainViewModel(
     }
 
     private fun onTestsFinished(requestId: String) {
+        routineTestsDone?.complete(Unit)
         if (testRequests.completeBulk(requestId) == null) return
         resetTestStatus()
         viewModelScope.launch(ioDispatcher) {
@@ -1031,5 +1147,10 @@ class MainViewModel(
 
     private companion object {
         const val TEST_RESULT_FLUSH_INTERVAL_MS = 500L
+        const val ROUTINE_TEST_TIMEOUT_MS = 180_000L
+        const val ROUTINE_CONNECT_TIMEOUT_MS = 30_000L
+        const val ROUTINE_PROBE_ATTEMPTS = 6
+        const val ROUTINE_PROBE_INTERVAL_MS = 3_000L
+        const val ROUTINE_PROBE_TIMEOUT_MS = 8_000
     }
 }

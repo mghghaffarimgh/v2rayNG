@@ -736,4 +736,17 @@
     <string name="main_chip_leak_paths">Leak paths: %1$d</string>
     <string name="toast_kill_switch_on">Kill switch on</string>
     <string name="toast_kill_switch_off">Kill switch off</string>
+    <string name="routine_action_label">Update, test and connect to the best server</string>
+    <string name="routine_busy">The subscription routine is already running.</string>
+    <string name="routine_step_update">Routine 1/4: updating the subscription…</string>
+    <string name="routine_step_test">Routine 2/4: testing every server…</string>
+    <string name="routine_step_connect">Routine 3/4: connecting to the best server…</string>
+    <string name="routine_step_verify">Routine 4/4: testing YouTube through the VPN…</string>
+    <string name="routine_result_title_ok">YouTube tested: OK</string>
+    <string name="routine_result_title_failed">Connection failed</string>
+    <string name="routine_result_ok">The VPN is connected and YouTube opened through it.\nServer: %1$s</string>
+    <string name="routine_result_no_servers">The subscription brought no servers. Check its link and try again.</string>
+    <string name="routine_result_no_reachable">No server in the subscription answered the test.</string>
+    <string name="routine_result_connect_failed">The VPN did not start with the chosen server.\nServer: %1$s</string>
+    <string name="routine_result_youtube_failed">YouTube did not open through the VPN.\nServer: %1$s\nTry another server, or double-tap the subscription again.</string>
 </resources>

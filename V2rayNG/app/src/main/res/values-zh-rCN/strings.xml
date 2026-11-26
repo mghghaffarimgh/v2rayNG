@@ -733,4 +733,17 @@
     <string name="main_chip_leak_paths">泄漏途径：%1$d</string>
     <string name="toast_kill_switch_on">终止开关已开启</string>
     <string name="toast_kill_switch_off">终止开关已关闭</string>
+    <string name="routine_action_label">更新、测试并连接最佳服务器</string>
+    <string name="routine_busy">订阅流程正在运行。</string>
+    <string name="routine_step_update">流程 1/4：正在更新订阅…</string>
+    <string name="routine_step_test">流程 2/4：正在测试所有服务器…</string>
+    <string name="routine_step_connect">流程 3/4：正在连接最佳服务器…</string>
+    <string name="routine_step_verify">流程 4/4：正在通过 VPN 测试 YouTube…</string>
+    <string name="routine_result_title_ok">YouTube 测试：成功</string>
+    <string name="routine_result_title_failed">连接失败</string>
+    <string name="routine_result_ok">VPN 已连接，YouTube 可通过它打开。\n服务器：%1$s</string>
+    <string name="routine_result_no_servers">订阅没有服务器。请检查链接后重试。</string>
+    <string name="routine_result_no_reachable">订阅中没有服务器通过测试。</string>
+    <string name="routine_result_connect_failed">VPN 未能使用所选服务器启动。\n服务器：%1$s</string>
+    <string name="routine_result_youtube_failed">YouTube 未能通过 VPN 打开。\n服务器：%1$s\n请尝试其他服务器，或再次双击订阅。</string>
 </resources>

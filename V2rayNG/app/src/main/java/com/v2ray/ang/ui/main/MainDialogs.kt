@@ -1,5 +1,8 @@
 package com.v2ray.ang.ui.main
 
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.ui.res.stringResource
@@ -32,7 +35,12 @@ fun MainDialogs(
     showRemoveConfirm: ServerDeleteTarget?,
     onDismissRemove: () -> Unit,
     onConfirmRemove: (String) -> Unit,
+    routineResult: RoutineState.Finished? = null,
+    onDismissRoutineResult: () -> Unit = {},
 ) {
+    routineResult?.let { result ->
+        RoutineResultDialog(result, onDismissRoutineResult)
+    }
     if (showDelAllConfirm) {
         DeleteConfirmDialog(
             message = stringResource(R.string.confirm_delete_visible_profiles),
@@ -62,4 +70,25 @@ fun MainDialogs(
             onDismiss = onDismissRemove
         )
     }
+}
+
+/** The subscription routine's verdict: YouTube through the VPN worked, or why it did not. */
+@Composable
+private fun RoutineResultDialog(result: RoutineState.Finished, onDismiss: () -> Unit) {
+    val server = result.serverName ?: stringResource(R.string.value_unknown)
+    val message = when (result.failure) {
+        null -> stringResource(R.string.routine_result_ok, server)
+        RoutineFailure.NoServers -> stringResource(R.string.routine_result_no_servers)
+        RoutineFailure.NoReachableServer -> stringResource(R.string.routine_result_no_reachable)
+        RoutineFailure.ConnectFailed -> stringResource(R.string.routine_result_connect_failed, server)
+        RoutineFailure.YoutubeFailed -> stringResource(R.string.routine_result_youtube_failed, server)
+    }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(stringResource(if (result.failure == null) R.string.routine_result_title_ok else R.string.routine_result_title_failed))
+        },
+        text = { Text(message) },
+        confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(android.R.string.ok)) } }
+    )
 }

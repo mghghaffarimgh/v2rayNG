@@ -733,4 +733,17 @@
     <string name="main_chip_leak_paths">Đường rò rỉ: %1$d</string>
     <string name="toast_kill_switch_on">Đã bật kill switch</string>
     <string name="toast_kill_switch_off">Đã tắt kill switch</string>
+    <string name="routine_action_label">Cập nhật, kiểm tra và kết nối máy chủ tốt nhất</string>
+    <string name="routine_busy">Quy trình đăng ký đang chạy.</string>
+    <string name="routine_step_update">Bước 1/4: cập nhật đăng ký…</string>
+    <string name="routine_step_test">Bước 2/4: kiểm tra mọi máy chủ…</string>
+    <string name="routine_step_connect">Bước 3/4: kết nối máy chủ tốt nhất…</string>
+    <string name="routine_step_verify">Bước 4/4: kiểm tra YouTube qua VPN…</string>
+    <string name="routine_result_title_ok">Đã kiểm tra YouTube: OK</string>
+    <string name="routine_result_title_failed">Kết nối thất bại</string>
+    <string name="routine_result_ok">VPN đã kết nối và YouTube mở được qua VPN.\nMáy chủ: %1$s</string>
+    <string name="routine_result_no_servers">Đăng ký không có máy chủ nào. Kiểm tra liên kết và thử lại.</string>
+    <string name="routine_result_no_reachable">Không máy chủ nào trong đăng ký phản hồi.</string>
+    <string name="routine_result_connect_failed">VPN không khởi động với máy chủ đã chọn.\nMáy chủ: %1$s</string>
+    <string name="routine_result_youtube_failed">YouTube không mở được qua VPN.\nMáy chủ: %1$s\nThử máy chủ khác hoặc nhấn đúp vào đăng ký lần nữa.</string>
 </resources>

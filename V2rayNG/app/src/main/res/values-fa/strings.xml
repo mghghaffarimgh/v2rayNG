@@ -735,4 +735,17 @@
     <string name="main_chip_leak_paths">راه‌های نشت: %1$d</string>
     <string name="toast_kill_switch_on">کیل‌سوئیچ روشن شد</string>
     <string name="toast_kill_switch_off">کیل‌سوئیچ خاموش شد</string>
+    <string name="routine_action_label">آپدیت، تست و اتصال به بهترین سرور</string>
+    <string name="routine_busy">روال اشتراک در حال اجراست.</string>
+    <string name="routine_step_update">روال ۱/۴: آپدیت اشتراک…</string>
+    <string name="routine_step_test">روال ۲/۴: تست همهٔ سرورها…</string>
+    <string name="routine_step_connect">روال ۳/۴: اتصال به بهترین سرور…</string>
+    <string name="routine_step_verify">روال ۴/۴: تست یوتیوب از راه VPN…</string>
+    <string name="routine_result_title_ok">یوتیوب تست شد: اوکی</string>
+    <string name="routine_result_title_failed">اتصال ناموفق بود</string>
+    <string name="routine_result_ok">VPN وصل است و یوتیوب از راه آن باز شد.\nسرور: %1$s</string>
+    <string name="routine_result_no_servers">اشتراک هیچ سروری نیاورد. لینک آن را بررسی کنید و دوباره امتحان کنید.</string>
+    <string name="routine_result_no_reachable">هیچ سروری در این اشتراک به تست جواب نداد.</string>
+    <string name="routine_result_connect_failed">VPN با سرور انتخاب‌شده روشن نشد.\nسرور: %1$s</string>
+    <string name="routine_result_youtube_failed">یوتیوب از راه VPN باز نشد.\nسرور: %1$s\nسرور دیگری را امتحان کنید یا دوباره روی اشتراک دوبار ضربه بزنید.</string>
 </resources>

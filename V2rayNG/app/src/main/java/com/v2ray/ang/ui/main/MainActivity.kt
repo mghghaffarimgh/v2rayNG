@@ -9,7 +9,11 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import com.v2ray.ang.AngApplication
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.R
@@ -101,6 +105,19 @@ class MainActivity : HelperBaseComponentActivity() {
         mainViewModel.onAction(MainAction.Initialize)
 
         checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {}
+
+        // The subscription routine picks the server; starting the VPN needs this activity, for
+        // Android's VPN permission dialog.
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                mainViewModel.uiState.map { it.routineConnectRequested }.distinctUntilChanged().collect { requested ->
+                    if (requested) {
+                        mainViewModel.onAction(MainAction.RoutineConnectHandled)
+                        LauncherManager.restartServiceOrStart(this@MainActivity, ::requestServiceStart)
+                    }
+                }
+            }
+        }
     }
 
     override fun onResume() {

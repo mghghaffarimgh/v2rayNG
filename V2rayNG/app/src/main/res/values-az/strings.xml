@@ -735,4 +735,17 @@
     <string name="main_chip_leak_paths">Sızma yolları: %1$d</string>
     <string name="toast_kill_switch_on">Kill switch açıldı</string>
     <string name="toast_kill_switch_off">Kill switch bağlandı</string>
+    <string name="routine_action_label">Yenilə, yoxla və ən yaxşı serverə qoşul</string>
+    <string name="routine_busy">Abunəlik proseduru artıq işləyir.</string>
+    <string name="routine_step_update">Addım 1/4: abunəlik yenilənir…</string>
+    <string name="routine_step_test">Addım 2/4: bütün serverlər yoxlanılır…</string>
+    <string name="routine_step_connect">Addım 3/4: ən yaxşı serverə qoşulur…</string>
+    <string name="routine_step_verify">Addım 4/4: YouTube VPN ilə yoxlanılır…</string>
+    <string name="routine_result_title_ok">YouTube yoxlanıldı: OK</string>
+    <string name="routine_result_title_failed">Qoşulma alınmadı</string>
+    <string name="routine_result_ok">VPN qoşuludur və YouTube onunla açıldı.\nServer: %1$s</string>
+    <string name="routine_result_no_servers">Abunəlik heç bir server gətirmədi. Linki yoxlayıb yenidən cəhd edin.</string>
+    <string name="routine_result_no_reachable">Abunəlikdə heç bir server testə cavab vermədi.</string>
+    <string name="routine_result_connect_failed">VPN seçilmiş serverlə başlamadı.\nServer: %1$s</string>
+    <string name="routine_result_youtube_failed">YouTube VPN ilə açılmadı.\nServer: %1$s\nBaşqa server sınayın və ya abunəliyə yenidən iki dəfə toxunun.</string>
 </resources>

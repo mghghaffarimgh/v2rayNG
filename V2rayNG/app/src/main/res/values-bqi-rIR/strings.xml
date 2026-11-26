@@ -734,4 +734,17 @@
     <string name="main_chip_leak_paths">راه‌های نشت: %1$d</string>
     <string name="toast_kill_switch_on">کیل‌سوئیچ روشن شد</string>
     <string name="toast_kill_switch_off">کیل‌سوئیچ خاموش شد</string>
+    <string name="routine_action_label">آپدیت، تست و وصل وابیین وه بهترین سرور</string>
+    <string name="routine_busy">روال اشتراک ایسه د حال اجرائه.</string>
+    <string name="routine_step_update">روال ۱/۴: آپدیت اشتراک…</string>
+    <string name="routine_step_test">روال ۲/۴: تست همه سرورا…</string>
+    <string name="routine_step_connect">روال ۳/۴: وصل وابیین وه بهترین سرور…</string>
+    <string name="routine_step_verify">روال ۴/۴: تست یوتیوب د ری VPN…</string>
+    <string name="routine_result_title_ok">یوتیوب تست بی: اوکی</string>
+    <string name="routine_result_title_failed">وصل نوابی</string>
+    <string name="routine_result_ok">VPN وصله و یوتیوب د ری وه واز بی.\nسرور: %1$s</string>
+    <string name="routine_result_no_servers">اشتراک هیچ سروری نیاورد. لینکش نه بپاین و دووره امتحان کنین.</string>
+    <string name="routine_result_no_reachable">هیچ سروری د ای اشتراک وه تست جواو ندا.</string>
+    <string name="routine_result_connect_failed">VPN وا سرور انتخاوی روشن نوابی.\nسرور: %1$s</string>
+    <string name="routine_result_youtube_failed">یوتیوب د ری VPN واز نوابی.\nسرور: %1$s\nیه سرور تر امتحان کنین یا دووره دو بار رو اشتراک بزنین.</string>
 </resources>
